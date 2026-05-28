@@ -53,16 +53,20 @@ const Dot: React.FC<{
   const distanceX = Math.abs(col - 2) / 2;
   const distanceY = Math.abs(row - 5.5) / 5.5;
   const noise = ((row * 17 + col * 31 + eye * 13) % 9) / 100;
-  const booting = progress < 35;
+  const bootBlend = 1 - segment(progress, 32, 50, Easing.bezier(0.22, 1, 0.36, 1));
+  const calmBlend = 1 - bootBlend;
   const shimmer = (Math.sin(progress * 0.28 + row * 0.72 + col * 1.14 + eye * 1.8) + 1) / 2;
   const baseOpacity = clamp(0.96 - distanceX * 0.1 - distanceY * 0.18 + noise, 0.38, 1);
   const collapseMask = clamp(1 - Math.abs(row - 5.5) * blink * 0.34, 0, 1);
   const opacity = baseOpacity * collapseMask;
   const glyph = bootGlyphs[(index * 7 + Math.floor(progress * 2.4) * 5) % bootGlyphs.length];
-  const glyphOpacity = booting
-    ? 0.96
-    : clamp((0.42 + shimmer * 0.4 - distanceY * 0.1 + noise) * collapseMask, 0.16, 0.9);
-  const cellGlow = booting ? 0.64 : opacity * (0.42 + shimmer * 0.2);
+  const calmGlyphOpacity = clamp((0.56 + shimmer * 0.34 - distanceY * 0.08 + noise) * collapseMask, 0.24, 0.92);
+  const glyphOpacity = mix(0.96 * collapseMask, calmGlyphOpacity, calmBlend);
+  const backgroundAlpha = mix(0.12 * collapseMask, opacity * (0.18 + shimmer * 0.08), calmBlend);
+  const cellGlow = mix(0.72 * collapseMask, clamp(opacity * (0.62 + shimmer * 0.22), 0.28, 0.9), calmBlend);
+  const glyphScale = mix(1.18, mix(1.04, 1.14, shimmer), calmBlend);
+  const nearGlow = mix(0.74, glyphOpacity * 0.62, calmBlend);
+  const farGlow = mix(0.32, glyphOpacity * 0.28, calmBlend);
 
   return (
     <span
@@ -72,26 +76,22 @@ const Dot: React.FC<{
         borderRadius: 1,
         display: "grid",
         placeItems: "center",
-        backgroundColor: booting
-          ? "rgba(242, 242, 238, 0.12)"
-          : `rgba(${color}, ${opacity * 0.16})`,
+        backgroundColor: `rgba(${color}, ${backgroundAlpha})`,
         color: `rgba(${color}, ${glyphOpacity})`,
         fontFamily: '"IBM Plex Mono", "JetBrains Mono", SFMono-Regular, Consolas, monospace',
-        fontSize: booting ? 7.5 : 7.2,
+        fontSize: mix(7.5, 7.2, calmBlend),
         fontWeight: 800,
         lineHeight: "5px",
-        transform: `scale(${booting ? 1.18 : mix(1.02, 1.14, shimmer)})`,
+        transform: `scale(${glyphScale})`,
         textShadow: [
-          `0 0 ${booting ? 5 : mix(3, 6, shimmer)}px rgba(${color}, ${booting ? 0.74 : glyphOpacity * 0.56})`,
-          `0 0 ${booting ? 13 : mix(9, 17, shimmer)}px rgba(${color}, ${booting ? 0.32 : glyphOpacity * 0.22})`,
+          `0 0 ${mix(5, mix(4, 7, shimmer), calmBlend)}px rgba(${color}, ${nearGlow})`,
+          `0 0 ${mix(13, mix(12, 20, shimmer), calmBlend)}px rgba(${color}, ${farGlow})`,
         ].join(", "),
-        boxShadow: booting
-          ? "0 0 6px rgba(242, 242, 238, 0.64), 0 0 16px rgba(242, 242, 238, 0.26)"
-          : [
-              `0 0 ${4 * glowStrength}px rgba(${color}, ${cellGlow})`,
-              `0 0 ${12 * glowStrength}px rgba(${color}, ${cellGlow * 0.42})`,
-              `0 0 ${24 * glowStrength}px rgba(${color}, ${cellGlow * 0.16})`,
-            ].join(", "),
+        boxShadow: [
+          `0 0 ${5 * glowStrength}px rgba(${color}, ${cellGlow})`,
+          `0 0 ${15 * glowStrength}px rgba(${color}, ${cellGlow * 0.42})`,
+          `0 0 ${30 * glowStrength}px rgba(${color}, ${cellGlow * 0.16})`,
+        ].join(", "),
       }}
     >
       {glyph}
@@ -180,12 +180,14 @@ const Brow: React.FC<{
   angle: number;
   color: string;
   glowStrength: number;
+  progress: number;
 }> = ({
   x,
   lift,
   angle,
   color,
   glowStrength,
+  progress,
 }) => (
   <div
     style={{
@@ -212,22 +214,38 @@ const Brow: React.FC<{
     {Array.from({ length: 24 }).map((_, index) => {
       const col = index % 8;
       const row = Math.floor(index / 8);
-      const opacity = clamp(0.82 - Math.abs(col - 3.5) * 0.035 - row * 0.075, 0.48, 0.9);
+      const shimmer = (Math.sin(progress * 0.32 + col * 0.9 + row * 1.25 + index * 0.18) + 1) / 2;
+      const opacity = clamp(0.7 + shimmer * 0.18 - Math.abs(col - 3.5) * 0.035 - row * 0.06, 0.48, 0.92);
+      const glyph = bootGlyphs[(index * 5 + Math.floor(progress * 1.9) * 3) % bootGlyphs.length];
       return (
         <span
           key={index}
           style={{
             width: 5,
             height: 5,
-            borderRadius: 999,
-            backgroundColor: `rgba(${color}, ${opacity})`,
+            borderRadius: 1,
+            display: "grid",
+            placeItems: "center",
+            backgroundColor: `rgba(${color}, ${opacity * 0.12})`,
+            color: `rgba(${color}, ${opacity})`,
+            fontFamily: '"IBM Plex Mono", "JetBrains Mono", SFMono-Regular, Consolas, monospace',
+            fontSize: 7,
+            fontWeight: 800,
+            lineHeight: "5px",
+            transform: `scale(${mix(1.02, 1.13, shimmer)})`,
+            textShadow: [
+              `0 0 ${mix(4, 7, shimmer)}px rgba(${color}, ${opacity * 0.62})`,
+              `0 0 ${mix(10, 18, shimmer)}px rgba(${color}, ${opacity * 0.24})`,
+            ].join(", "),
             boxShadow: [
-              `0 0 ${5 * glowStrength}px rgba(${color}, ${opacity * 0.54})`,
-              `0 0 ${14 * glowStrength}px rgba(${color}, ${opacity * 0.2})`,
-              `0 0 ${26 * glowStrength}px rgba(${color}, ${opacity * 0.08})`,
+              `0 0 ${5 * glowStrength}px rgba(${color}, ${opacity * 0.58})`,
+              `0 0 ${15 * glowStrength}px rgba(${color}, ${opacity * 0.24})`,
+              `0 0 ${30 * glowStrength}px rgba(${color}, ${opacity * 0.1})`,
             ].join(", "),
           }}
-        />
+        >
+          {glyph}
+        </span>
       );
     })}
   </div>
@@ -381,8 +399,22 @@ export const EyeMascot: React.FC<EyeMascotProps> = ({
           transformOrigin: "50% 50%",
         }}
       >
-        <Brow x={24} lift={leftBrow} angle={leftBrowAngle} color={dotColor} glowStrength={glowStrength} />
-        <Brow x={186} lift={rightBrow} angle={rightBrowAngle} color={dotColor} glowStrength={glowStrength} />
+        <Brow
+          x={24}
+          lift={leftBrow}
+          angle={leftBrowAngle}
+          color={dotColor}
+          glowStrength={glowStrength}
+          progress={progress}
+        />
+        <Brow
+          x={186}
+          lift={rightBrow}
+          angle={rightBrowAngle}
+          color={dotColor}
+          glowStrength={glowStrength}
+          progress={progress}
+        />
         <Glow x={72} progress={progress} color={dotColor} />
         <Glow x={212} progress={progress} color={dotColor} />
         <div
