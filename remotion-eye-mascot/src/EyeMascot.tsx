@@ -4,7 +4,6 @@ import {
   Easing,
   interpolate,
   useCurrentFrame,
-  useVideoConfig,
 } from "remotion";
 
 type EyeMascotProps = {
@@ -34,10 +33,10 @@ const segment = (
 
 const bootGlyphs = "0101101001110010";
 const statusSteps = [
-  { text: "waking up...", from: 2, to: 35 },
-  { text: "someone joined", from: 35, to: 59 },
-  { text: "wait. that's a human", from: 59, to: 73 },
-  { text: "oh, he's looking at me", from: 73, to: 100, final: true },
+  { text: "waking up...", from: 2, to: 31 },
+  { text: "looking for the user", from: 31, to: 55 },
+  { text: "someone joined", from: 55, to: 70 },
+  { text: "oh. you're looking at me", from: 70, to: 100, final: true },
 ];
 
 const Dot: React.FC<{
@@ -261,39 +260,15 @@ const Status: React.FC<{ progress: number }> = ({ progress }) => {
         left: "50%",
         top: 602,
         transform: "translateX(-50%)",
-        display: "grid",
-        gridTemplateColumns: "minmax(0, 1fr) 28ch minmax(0, 1fr)",
-        columnGap: 12,
-        alignItems: "center",
-        width: 560,
+        width: 640,
         fontFamily: '"IBM Plex Mono", "JetBrains Mono", SFMono-Regular, Consolas, monospace',
-        fontSize: 13,
-        letterSpacing: "0.055em",
+        fontSize: 18,
+        letterSpacing: "0.075em",
         textTransform: "uppercase",
         opacity: 1 - statusExit,
       }}
     >
-      <span
-        style={{
-          justifySelf: "end",
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 8,
-          color: "#70706a",
-        }}
-      >
-        <span
-          style={{
-            width: 6,
-            height: 6,
-            borderRadius: 999,
-            background: "rgba(159, 255, 215, 0.8)",
-            boxShadow: "0 0 8px rgba(159, 255, 215, 0.46), 0 0 18px rgba(159, 255, 215, 0.16)",
-          }}
-        />
-        status
-      </span>
-      <span style={{ position: "relative", width: "28ch", height: "1.4em", textAlign: "center" }}>
+      <span style={{ position: "relative", display: "block", width: "100%", height: "1.4em", textAlign: "center" }}>
         {statusSteps.map((item) => {
           const fadeIn = segment(progress, item.from, item.from + 4, Easing.bezier(0.16, 1, 0.3, 1));
           const fadeOut = item.final ? 0 : segment(progress, item.to - 5, item.to, Easing.bezier(0.7, 0, 0.84, 0));
@@ -308,11 +283,11 @@ const Status: React.FC<{ progress: number }> = ({ progress }) => {
                 opacity,
                 color: "#f2f2ee",
                 fontWeight: item.final ? 700 : 500,
-                letterSpacing: item.final ? "0.08em" : "0.055em",
+                letterSpacing: item.final ? "0.09em" : "0.075em",
                 transform: `translateY(${mix(5, 0, fadeIn) - fadeOut * 4}px) scale(${1 + emphasis * 0.045})`,
                 textShadow: item.final
-                  ? "0 0 10px rgba(242, 242, 238, 0.42), 0 0 24px rgba(242, 242, 238, 0.18)"
-                  : "none",
+                  ? "0 0 12px rgba(242, 242, 238, 0.52), 0 0 28px rgba(242, 242, 238, 0.22)"
+                  : "0 0 10px rgba(242, 242, 238, 0.22)",
                 whiteSpace: "nowrap",
               }}
             >
@@ -321,7 +296,6 @@ const Status: React.FC<{ progress: number }> = ({ progress }) => {
           );
         })}
       </span>
-      <span />
     </div>
   );
 };
@@ -331,8 +305,8 @@ export const EyeMascot: React.FC<EyeMascotProps> = ({
   glowStrength,
 }) => {
   const frame = useCurrentFrame();
-  const { durationInFrames } = useVideoConfig();
-  const progress = pct(frame, durationInFrames);
+  const animationFrames = 150;
+  const progress = pct(Math.min(frame, animationFrames - 1), animationFrames);
 
   const enter = segment(progress, 0, 10, Easing.bezier(0.16, 1, 0.3, 1));
   const wakeIn = segment(progress, 2, 6, Easing.bezier(0.16, 1, 0.3, 1));
