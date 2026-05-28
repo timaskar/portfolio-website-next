@@ -1,0 +1,8 @@
+node_modules/
+.next/
+dist/
+out/
+.DS_Store
+.playwright-cli/
+remotion-eye-mascot/node_modules/
+remotion-eye-mascot/.remotion/
