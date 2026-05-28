@@ -19,6 +19,10 @@
         --border-default: #34342e;
         --signal-active: #9fffd7;
         --signal-dim: #4fd6b0;
+        --glass-fill: rgba(255, 255, 255, 0.075);
+        --glass-fill-strong: rgba(255, 255, 255, 0.11);
+        --glass-border: rgba(255, 255, 255, 0.15);
+        --glass-shine: rgba(255, 255, 255, 0.22);
         --pixel: rgba(242, 242, 238, 0.82);
         --pixel-dim: rgba(242, 242, 238, 0.18);
         --scan: rgba(242, 242, 238, 0.055);
@@ -104,99 +108,134 @@
         animation: mascot-hold-enter 360ms var(--ease-out) 5s forwards;
       }
 
-      .chat-panel {
+      .assistant-console {
         position: absolute;
-        left: clamp(16px, 9vw, 108px);
-        bottom: clamp(26px, 7vh, 70px);
+        left: 50%;
+        bottom: clamp(22px, 5.6vh, 56px);
         z-index: 4;
-        width: min(620px, calc(100vw - clamp(16px, 9vw, 108px) - 16px));
+        width: min(860px, calc(100vw - 48px));
         opacity: 0;
-        transform: translate3d(0, 18px, 0);
-        animation: chat-panel-enter 760ms var(--ease-out) 5.05s forwards;
+        transform: translate3d(-50%, 18px, 0);
+        animation: console-enter 760ms var(--ease-out) 5.05s forwards;
       }
 
-      .chat-bubble {
-        position: relative;
-        width: min(560px, 100%);
-        max-width: 100%;
-        border: 1px solid rgba(242, 242, 238, 0.18);
-        border-radius: 6px;
-        padding: 18px 20px 20px;
-        background:
-          linear-gradient(180deg, rgba(15, 15, 15, 0.94), rgba(5, 5, 5, 0.94)),
-          #050505;
-        box-shadow:
-          0 0 0 1px rgba(159, 255, 215, 0.04),
-          0 16px 60px rgba(0, 0, 0, 0.34);
+      .thread {
+        display: grid;
+        gap: 10px;
+        width: min(720px, 100%);
+        margin: 0 auto 12px;
       }
 
-      .chat-bubble::before {
-        content: "";
-        position: absolute;
-        left: 22px;
-        top: -6px;
-        width: 10px;
-        height: 10px;
-        border-left: 1px solid rgba(242, 242, 238, 0.18);
-        border-top: 1px solid rgba(242, 242, 238, 0.18);
-        background: #0f0f0f;
-        transform: rotate(45deg);
-      }
-
-      .chat-meta {
+      .message-row {
         display: flex;
         align-items: center;
-        gap: 8px;
-        margin-bottom: 12px;
-        color: var(--signal-active);
-        font-family: "IBM Plex Mono", "JetBrains Mono", SFMono-Regular, Consolas, monospace;
-        font-size: 10px;
-        font-weight: 700;
-        letter-spacing: 0.12em;
-        line-height: 1.3;
-        text-transform: uppercase;
       }
 
-      .chat-meta::before {
-        content: "";
-        width: 6px;
-        height: 6px;
-        background: var(--signal-active);
+      .message-row[hidden] {
+        display: none !important;
+      }
+
+      .message-row.user {
+        justify-content: flex-end;
+      }
+
+      .message-bubble {
+        position: relative;
+        overflow: hidden;
+        max-width: min(620px, 88%);
+        border: 1px solid var(--glass-border);
+        border-radius: 28px;
+        padding: 16px 18px 17px;
+        background: var(--glass-fill);
+        -webkit-backdrop-filter: blur(30px) saturate(1.35);
+        backdrop-filter: blur(30px) saturate(1.35);
         box-shadow:
-          0 0 8px rgba(159, 255, 215, 0.56),
-          0 0 18px rgba(159, 255, 215, 0.18);
+          inset 0 1px 0 rgba(255, 255, 255, 0.11),
+          inset 0 -1px 0 rgba(255, 255, 255, 0.035),
+          0 18px 58px rgba(0, 0, 0, 0.28);
       }
 
-      .chat-message {
+      .message-bubble::before,
+      .composer::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background:
+          linear-gradient(135deg, rgba(255, 255, 255, 0.18), transparent 38%),
+          radial-gradient(circle at 88% 12%, rgba(255, 255, 255, 0.13), transparent 28%);
+        opacity: 0.72;
+      }
+
+      .message-bubble > * {
+        position: relative;
+      }
+
+      .agent-bubble {
+        border-bottom-left-radius: 12px;
+      }
+
+      .user-bubble {
+        border-color: rgba(221, 255, 244, 0.24);
+        border-bottom-right-radius: 12px;
+        background: rgba(225, 255, 246, 0.13);
+        color: var(--text-primary);
+      }
+
+      .agent-name,
+      .prompt-chip,
+      .send-button {
+        font-weight: 650;
+      }
+
+      .agent-name {
+        display: block;
+        margin-bottom: 9px;
+        color: rgba(242, 242, 238, 0.56);
+        font-size: 13px;
+        letter-spacing: 0;
+        line-height: 1.3;
+      }
+
+      .agent-name::before {
+        content: none;
+      }
+
+      .agent-message {
         margin: 0;
         color: var(--text-primary);
-        font-size: clamp(18px, 2.3vw, 28px);
-        line-height: 1.18;
+        font-size: clamp(15px, 1.6vw, 19px);
+        line-height: 1.38;
         letter-spacing: 0;
       }
 
-      .quick-actions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        width: min(620px, 100%);
-        margin-top: 14px;
+      .user-message {
+        margin: 0;
+        font-size: clamp(14px, 1.3vw, 16px);
+        line-height: 1.35;
       }
 
-      .quick-action {
-        min-height: 38px;
+      .prompt-shelf {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 9px;
+        margin-bottom: 12px;
+      }
+
+      .prompt-chip {
+        min-height: 36px;
         min-width: 0;
-        border: 1px solid rgba(242, 242, 238, 0.16);
-        border-radius: 4px;
-        padding: 9px 12px;
-        background: rgba(12, 12, 12, 0.78);
-        color: rgba(242, 242, 238, 0.76);
-        font-family: "IBM Plex Mono", "JetBrains Mono", SFMono-Regular, Consolas, monospace;
-        font-size: 10px;
-        font-weight: 700;
-        letter-spacing: 0.055em;
+        border: 1px solid rgba(255, 255, 255, 0.13);
+        border-radius: 999px;
+        padding: 8px 15px;
+        background: rgba(255, 255, 255, 0.06);
+        -webkit-backdrop-filter: blur(20px) saturate(1.24);
+        backdrop-filter: blur(20px) saturate(1.24);
+        color: rgba(242, 242, 238, 0.72);
+        font-size: 13px;
+        letter-spacing: 0;
         line-height: 1.2;
-        text-transform: uppercase;
         cursor: pointer;
         transition:
           border-color 160ms var(--ease-out),
@@ -205,14 +244,91 @@
           box-shadow 160ms var(--ease-out);
       }
 
-      .quick-action:hover,
-      .quick-action:focus-visible,
-      .quick-action.is-active {
-        border-color: rgba(159, 255, 215, 0.72);
-        background: rgba(159, 255, 215, 0.08);
+      .prompt-chip:hover,
+      .prompt-chip:focus-visible,
+      .prompt-chip.is-active {
+        border-color: rgba(230, 255, 248, 0.32);
+        background: rgba(230, 255, 248, 0.12);
         color: var(--text-primary);
         outline: none;
-        box-shadow: 0 0 18px rgba(159, 255, 215, 0.12);
+        box-shadow: 0 0 28px rgba(230, 255, 248, 0.1);
+      }
+
+      .composer {
+        position: relative;
+        overflow: hidden;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: end;
+        gap: 10px;
+        border: 1px solid var(--glass-border);
+        border-radius: 32px;
+        padding: 10px 10px 10px 20px;
+        background: var(--glass-fill-strong);
+        -webkit-backdrop-filter: blur(34px) saturate(1.42);
+        backdrop-filter: blur(34px) saturate(1.42);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.13),
+          inset 0 -1px 0 rgba(255, 255, 255, 0.035),
+          0 24px 80px rgba(0, 0, 0, 0.34);
+      }
+
+      .composer > * {
+        position: relative;
+      }
+
+      .prompt-input {
+        width: 100%;
+        min-height: 48px;
+        max-height: 112px;
+        border: 0;
+        padding: 12px 2px;
+        resize: none;
+        overflow: hidden;
+        background: transparent;
+        color: var(--text-primary);
+        font: inherit;
+        font-size: 16px;
+        line-height: 1.45;
+        letter-spacing: 0;
+        outline: none;
+      }
+
+      .prompt-input::placeholder {
+        color: rgba(242, 242, 238, 0.44);
+      }
+
+      .send-button {
+        display: grid;
+        place-items: center;
+        min-width: 56px;
+        height: 48px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.11);
+        -webkit-backdrop-filter: blur(18px) saturate(1.18);
+        backdrop-filter: blur(18px) saturate(1.18);
+        color: var(--text-primary);
+        font-size: 14px;
+        letter-spacing: 0;
+        cursor: pointer;
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.14),
+          0 0 24px rgba(255, 255, 255, 0.06);
+        transition:
+          background 160ms var(--ease-out),
+          border-color 160ms var(--ease-out),
+          box-shadow 160ms var(--ease-out);
+      }
+
+      .send-button:hover,
+      .send-button:focus-visible {
+        border-color: rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.16);
+        outline: none;
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.18),
+          0 0 30px rgba(255, 255, 255, 0.1);
       }
 
       .face-stage {
@@ -897,10 +1013,10 @@
         }
       }
 
-      @keyframes chat-panel-enter {
+      @keyframes console-enter {
         to {
           opacity: 1;
-          transform: translate3d(0, 0, 0);
+          transform: translate3d(-50%, 0, 0);
         }
       }
 
@@ -975,30 +1091,67 @@
           padding: 24px 16px;
         }
 
-        .chat-panel {
-          left: 16px;
-          right: 16px;
+        .assistant-console {
           bottom: 18px;
           width: calc(100vw - 32px);
         }
 
-        .chat-bubble {
-          width: 100%;
-          max-width: 100%;
-          padding: 15px 16px 17px;
+        .thread {
+          gap: 8px;
+          margin-bottom: 10px;
         }
 
-        .quick-actions {
+        .message-bubble {
+          max-width: 94%;
+          border-radius: 24px;
+          padding: 13px 14px 14px;
+        }
+
+        .agent-bubble {
+          border-bottom-left-radius: 8px;
+        }
+
+        .user-bubble {
+          border-bottom-right-radius: 8px;
+        }
+
+        .agent-message {
+          font-size: 16px;
+          line-height: 1.3;
+        }
+
+        .user-message {
+          font-size: 14px;
+        }
+
+        .prompt-shelf {
           display: grid;
           grid-template-columns: repeat(2, minmax(0, 1fr));
           gap: 7px;
-          width: 100%;
         }
 
-        .quick-action {
+        .prompt-chip {
           width: 100%;
-          padding: 9px 8px;
-          font-size: 9px;
+          padding: 10px 12px;
+          font-size: 12px;
+        }
+
+        .composer {
+          grid-template-columns: minmax(0, 1fr) auto;
+          gap: 8px;
+          padding: 8px 8px 8px 16px;
+        }
+
+        .prompt-input {
+          min-height: 42px;
+          padding: 8px 2px;
+          font-size: 14px;
+        }
+
+        .send-button {
+          min-width: 48px;
+          height: 42px;
+          font-size: 13px;
         }
 
         .metrics {
@@ -1026,9 +1179,9 @@
           transform: none;
         }
 
-        .chat-panel {
+        .assistant-console {
           opacity: 1;
-          transform: none;
+          transform: translate3d(-50%, 0, 0);
         }
 
         .mascot-hold {
@@ -1055,70 +1208,128 @@
           alt=""
           aria-hidden="true"
         />
-        <div class="chat-panel" aria-label="Portfolio assistant">
-          <div class="chat-bubble">
-            <div class="chat-meta">Tim's portfolio assistant</div>
-            <p class="chat-message" id="assistant-message">
-              Hey, I'm Tim's portfolio assistant. Pick a thread and I'll brief you like we're already in the review.
-            </p>
+        <div class="assistant-console" aria-label="AI portfolio chat">
+          <div class="thread" aria-live="polite">
+            <div class="message-row user" id="user-message-row" hidden>
+              <div class="message-bubble user-bubble">
+                <p class="user-message" id="user-message"></p>
+              </div>
+            </div>
+            <div class="message-row agent">
+              <div class="message-bubble agent-bubble">
+                <span class="agent-name">Assistant</span>
+                <p class="agent-message" id="assistant-message">
+                  Ask me what to open first. I can help you explore Tim's cases, strengths, experience, and product thinking.
+                </p>
+              </div>
+            </div>
           </div>
-          <div class="quick-actions" aria-label="Suggested questions">
+          <div class="prompt-shelf" aria-label="Prepared prompts">
             <button
-              class="quick-action"
+              class="prompt-chip"
               type="button"
+              data-prompt="Which case should I open first?"
               data-response="Start with the case that best shows problem framing, shipped decisions, and measurable product impact."
             >
-              Best case
+              What should I see first?
             </button>
             <button
-              class="quick-action"
+              class="prompt-chip"
               type="button"
+              data-prompt="Why is Tim a strong fit for Revolut?"
               data-response="For Revolut, I would look at systems thinking: evidence, constraints, metrics, and calm high-density fintech UI."
             >
-              Revolut fit
+              Why Revolut?
             </button>
             <button
-              class="quick-action"
+              class="prompt-chip"
               type="button"
+              data-prompt="Summarize Tim's strongest sides in 30 seconds."
               data-response="Tim is strongest where product strategy, research loops, interface craft, and execution discipline meet."
             >
-              Strengths
+              Strengths in 30 sec
             </button>
             <button
-              class="quick-action"
+              class="prompt-chip"
               type="button"
+              data-prompt="Where did Tim work before and what did he own?"
               data-response="I can map his previous roles into product domains, responsibilities, and the kind of decisions he owned."
             >
-              Work history
+              Experience
             </button>
             <button
-              class="quick-action"
+              class="prompt-chip"
               type="button"
+              data-prompt="Show me measurable product impact."
               data-response="Let's pull out the numbers first: user scale, conversion movement, research speed, and shipped business impact."
             >
-              Metrics
+              Impact
             </button>
             <button
-              class="quick-action"
+              class="prompt-chip"
               type="button"
+              data-prompt="How does Tim make design decisions?"
               data-response="His process should read as signal over noise: define the problem, find evidence, model tradeoffs, ship clearly."
             >
               Process
             </button>
           </div>
+          <form class="composer" aria-label="Ask Tim's portfolio agent">
+            <textarea
+              class="prompt-input"
+              id="portfolio-prompt"
+              rows="1"
+              placeholder="Ask anything about Tim's work..."
+            ></textarea>
+            <button class="send-button" type="submit" aria-label="Send prompt">Ask</button>
+          </form>
         </div>
       </section>
     </main>
     <script>
       const assistantMessage = document.querySelector("#assistant-message");
-      const quickActions = document.querySelectorAll(".quick-action");
+      const userMessage = document.querySelector("#user-message");
+      const userMessageRow = document.querySelector("#user-message-row");
+      const promptInput = document.querySelector("#portfolio-prompt");
+      const promptButtons = document.querySelectorAll(".prompt-chip");
+      const composer = document.querySelector(".composer");
 
-      quickActions.forEach((button) => {
+      const resizeInput = () => {
+        promptInput.style.height = "auto";
+        promptInput.style.height = `${Math.min(promptInput.scrollHeight, 112)}px`;
+      };
+
+      const showExchange = (prompt, response) => {
+        userMessage.textContent = prompt;
+        userMessageRow.hidden = false;
+        assistantMessage.textContent = response;
+      };
+
+      promptButtons.forEach((button) => {
         button.addEventListener("click", () => {
-          quickActions.forEach((item) => item.classList.remove("is-active"));
+          promptButtons.forEach((item) => item.classList.remove("is-active"));
           button.classList.add("is-active");
-          assistantMessage.textContent = button.dataset.response;
+          promptInput.value = button.dataset.prompt;
+          showExchange(button.dataset.prompt, button.dataset.response);
+          resizeInput();
+          promptInput.focus({ preventScroll: true });
         });
+      });
+
+      promptInput.addEventListener("input", resizeInput);
+
+      composer.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const prompt = promptInput.value.trim();
+
+        if (!prompt) {
+          promptInput.focus({ preventScroll: true });
+          return;
+        }
+
+        promptButtons.forEach((item) => item.classList.remove("is-active"));
+        showExchange(prompt, `I'll route this as a portfolio brief: ${prompt}`);
+        resizeInput();
       });
     </script>
   </body>
