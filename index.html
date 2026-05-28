@@ -100,15 +100,187 @@
       .mascot-hold {
         position: absolute;
         left: 50%;
-        top: calc(50% - 188px);
-        z-index: 3;
+        top: calc(50% - 212px);
+        z-index: 5;
+        display: grid;
+        place-items: center;
         width: min(220px, 24vw);
-        height: auto;
-        object-fit: contain;
+        aspect-ratio: 420 / 260;
+        border: 0;
+        padding: 0;
+        background: transparent;
         opacity: 0;
         transform: translate3d(-50%, 10px, 0) scale(0.94);
-        pointer-events: none;
+        cursor: pointer;
         animation: mascot-hold-enter 520ms var(--ease-out) 5s forwards;
+      }
+
+      .mascot-hold:focus-visible {
+        outline: 0;
+      }
+
+      .chat-face {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        transform-origin: 50% 58%;
+        transition: transform 520ms var(--ease-out);
+        will-change: transform;
+      }
+
+      .chat-eye,
+      .chat-brow {
+        position: absolute;
+        display: grid;
+        align-content: center;
+        justify-content: center;
+        transform-origin: 50% 50%;
+        transition:
+          opacity 320ms var(--ease-out),
+          transform 520ms var(--ease-out),
+          filter 420ms var(--ease-out);
+        will-change: transform, opacity;
+      }
+
+      .chat-eye {
+        top: 56%;
+        width: 34px;
+        height: 70px;
+        grid-template-columns: repeat(5, 4px);
+        grid-auto-rows: 4px;
+        gap: 2px;
+        border-radius: 8px;
+        translate: 0 -50%;
+        filter:
+          drop-shadow(0 0 8px rgba(242, 242, 238, 0.44))
+          drop-shadow(0 0 22px rgba(242, 242, 238, 0.2));
+      }
+
+      .chat-eye-left {
+        left: 31%;
+      }
+
+      .chat-eye-right {
+        right: 31%;
+      }
+
+      .chat-brow {
+        top: 20%;
+        width: 46px;
+        height: 14px;
+        grid-template-columns: repeat(7, 4px);
+        grid-auto-rows: 4px;
+        gap: 2px;
+        opacity: 0.78;
+        filter:
+          drop-shadow(0 0 6px rgba(242, 242, 238, 0.28))
+          drop-shadow(0 0 16px rgba(242, 242, 238, 0.1));
+      }
+
+      .chat-brow-left {
+        left: 26%;
+        transform: translate3d(0, 0, 0) rotateZ(4deg);
+      }
+
+      .chat-brow-right {
+        right: 26%;
+        transform: translate3d(0, 0, 0) rotateZ(-4deg);
+      }
+
+      .chat-led {
+        display: grid;
+        place-items: center;
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background: rgba(242, 242, 238, var(--o, 0.82));
+        color: rgba(242, 242, 238, 0.86);
+        font-family: "IBM Plex Mono", "JetBrains Mono", SFMono-Regular, Consolas, monospace;
+        font-size: 4px;
+        font-weight: 800;
+        line-height: 1;
+        text-shadow:
+          0 0 5px rgba(242, 242, 238, 0.62),
+          0 0 14px rgba(242, 242, 238, 0.24);
+        box-shadow:
+          0 0 4px rgba(242, 242, 238, calc(var(--o, 0.82) * 0.72)),
+          0 0 13px rgba(242, 242, 238, calc(var(--o, 0.82) * 0.34)),
+          0 0 28px rgba(242, 242, 238, calc(var(--o, 0.82) * 0.14));
+      }
+
+      .chat-brow .chat-led {
+        opacity: 0.74;
+      }
+
+      .chat-mascot[data-state="idle-left"] .chat-face {
+        transform: perspective(520px) rotateY(-8deg) translateX(-4px);
+      }
+
+      .chat-mascot[data-state="idle-right"] .chat-face {
+        transform: perspective(520px) rotateY(8deg) translateX(4px);
+      }
+
+      .chat-mascot[data-state="idle-left"] .chat-eye {
+        transform: translateX(-6px) skewY(-1.8deg) scaleX(0.94);
+      }
+
+      .chat-mascot[data-state="idle-right"] .chat-eye {
+        transform: translateX(6px) skewY(1.8deg) scaleX(0.94);
+      }
+
+      .chat-mascot[data-state="sleepy"] .chat-face {
+        transform: translateY(8px) scaleY(0.98);
+      }
+
+      .chat-mascot[data-state="sleepy"] .chat-eye {
+        opacity: 0.74;
+        transform: scaleY(0.38);
+        filter:
+          drop-shadow(0 0 5px rgba(242, 242, 238, 0.26))
+          drop-shadow(0 0 14px rgba(242, 242, 238, 0.1));
+      }
+
+      .chat-mascot[data-state="look-input"] .chat-face {
+        transform: perspective(520px) rotateX(8deg) translateY(6px);
+      }
+
+      .chat-mascot[data-state="look-input"] .chat-eye {
+        transform: translateY(8px) scaleY(0.96);
+      }
+
+      .chat-mascot[data-state="look-send"] .chat-face {
+        transform: perspective(520px) rotateY(12deg) translate3d(8px, 4px, 0);
+      }
+
+      .chat-mascot[data-state="look-send"] .chat-eye {
+        transform: translate3d(9px, 6px, 0) skewY(2deg) scaleX(0.92);
+      }
+
+      .chat-mascot[data-state="look-send"] .chat-brow-right {
+        transform: translate3d(6px, -9px, 0) rotateZ(-10deg);
+      }
+
+      .chat-mascot[data-state="startled"] .chat-face {
+        animation: mascot-startle 720ms var(--ease-out);
+      }
+
+      .chat-mascot[data-state="startled"] .chat-eye {
+        transform: scaleX(1.08) scaleY(1.14);
+        filter:
+          drop-shadow(0 0 10px rgba(242, 242, 238, 0.6))
+          drop-shadow(0 0 30px rgba(242, 242, 238, 0.24));
+      }
+
+      .chat-mascot[data-state="startled"] .chat-brow-left {
+        transform: translate3d(-8px, -13px, 0) rotateZ(-10deg);
+      }
+
+      .chat-mascot[data-state="startled"] .chat-brow-right {
+        transform: translate3d(8px, -13px, 0) rotateZ(10deg);
+      }
+
+      .chat-mascot.is-blinking .chat-eye {
+        animation: mascot-blink 260ms var(--ease-in);
       }
 
       .assistant-console {
@@ -1205,6 +1377,32 @@
         }
       }
 
+      @keyframes mascot-blink {
+        0%,
+        100% {
+          transform: scaleY(1);
+        }
+        48%,
+        58% {
+          transform: scaleY(0.08);
+        }
+      }
+
+      @keyframes mascot-startle {
+        0% {
+          transform: translateY(0) scale(1);
+        }
+        34% {
+          transform: translateY(-11px) scale(1.05);
+        }
+        62% {
+          transform: translateY(4px) scale(0.99);
+        }
+        100% {
+          transform: translateY(0) scale(1);
+        }
+      }
+
       @keyframes loader-video-exit {
         to {
           opacity: 0;
@@ -1277,7 +1475,7 @@
         }
 
         .mascot-hold {
-          top: clamp(238px, 30vh, 278px);
+          top: clamp(214px, calc(30vh - 24px), 254px);
           width: min(190px, 48vw);
         }
 
@@ -1429,12 +1627,19 @@
           preload="auto"
           aria-hidden="true"
         ></video>
-        <img
-          class="mascot-hold"
-          src="assets/mascot-chat.png?v=chat-layout-1"
-          alt=""
-          aria-hidden="true"
-        />
+        <button
+          class="mascot-hold chat-mascot"
+          type="button"
+          data-state="idle-center"
+          aria-label="Wake Tim's portfolio assistant"
+        >
+          <span class="chat-face" aria-hidden="true">
+            <span class="chat-brow chat-brow-left" data-led-strip="brow"></span>
+            <span class="chat-brow chat-brow-right" data-led-strip="brow"></span>
+            <span class="chat-eye chat-eye-left" data-led-strip="eye"></span>
+            <span class="chat-eye chat-eye-right" data-led-strip="eye"></span>
+          </span>
+        </button>
         <div class="assistant-console" aria-label="AI portfolio chat">
           <div class="thread" aria-live="polite">
             <div class="message-row user" id="user-message-row" hidden>
@@ -1539,6 +1744,14 @@
       const promptButtons = document.querySelectorAll(".followup");
       const followups = document.querySelector(".followups");
       const composer = document.querySelector(".composer");
+      const sendButton = document.querySelector(".send-button");
+      const mascot = document.querySelector(".chat-mascot");
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const ledGlyphs = ["0", "1", "3", "5", "8", "9", "A", "S", "K", "+", "?"];
+      const ledPixels = [];
+      let mascotMode = "idle";
+      let mascotIdleTimer;
+      let mascotActionTimer;
 
       const updateFollowupFade = () => {
         const maxScroll = followups.scrollWidth - followups.clientWidth;
@@ -1547,6 +1760,107 @@
         followups.classList.toggle("has-overflow", maxScroll > 1);
         followups.classList.toggle("is-at-start", maxScroll <= 1 || scrollLeft <= 1);
         followups.classList.toggle("is-at-end", maxScroll <= 1 || scrollLeft >= maxScroll - 1);
+      };
+
+      const randomGlyph = () => ledGlyphs[Math.floor(Math.random() * ledGlyphs.length)];
+
+      document.querySelectorAll("[data-led-strip]").forEach((strip) => {
+        const isEye = strip.dataset.ledStrip === "eye";
+        const count = isEye ? 45 : 7;
+
+        for (let index = 0; index < count; index += 1) {
+          const pixel = document.createElement("span");
+          const column = isEye ? index % 5 : index;
+          const row = isEye ? Math.floor(index / 5) : 0;
+          const centerFalloff = Math.abs(column - 2) * 0.04 + Math.abs(row - 4) * 0.012;
+          const opacity = Math.max(0.48, 0.9 - centerFalloff - Math.random() * 0.1);
+
+          pixel.className = "chat-led";
+          pixel.style.setProperty("--o", opacity.toFixed(2));
+          pixel.textContent = randomGlyph();
+          strip.append(pixel);
+          ledPixels.push(pixel);
+        }
+      });
+
+      const refreshLedGlyphs = () => {
+        ledPixels.forEach((pixel, index) => {
+          if ((index + Date.now()) % 3 === 0 || Math.random() > 0.58) {
+            pixel.textContent = randomGlyph();
+          }
+        });
+      };
+
+      if (!reduceMotion) {
+        window.setInterval(refreshLedGlyphs, 320);
+      }
+
+      const blinkMascot = () => {
+        if (reduceMotion) {
+          return;
+        }
+
+        mascot.classList.add("is-blinking");
+        window.setTimeout(() => mascot.classList.remove("is-blinking"), 280);
+      };
+
+      const setMascotState = (state) => {
+        mascot.dataset.state = state;
+      };
+
+      const restoreMascotMode = () => {
+        mascotMode = document.activeElement === promptInput ? "input" : "idle";
+        setMascotState(mascotMode === "input" ? "look-input" : "idle-center");
+        scheduleMascotIdle();
+      };
+
+      const scheduleMascotIdle = () => {
+        window.clearTimeout(mascotIdleTimer);
+
+        if (reduceMotion || mascotMode !== "idle") {
+          return;
+        }
+
+        mascotIdleTimer = window.setTimeout(() => {
+          const states = ["idle-left", "idle-right", "idle-center", "sleepy", "blink"];
+          const nextState = states[Math.floor(Math.random() * states.length)];
+
+          if (nextState === "blink") {
+            blinkMascot();
+          } else {
+            setMascotState(nextState);
+          }
+
+          scheduleMascotIdle();
+        }, 1800 + Math.random() * 2600);
+      };
+
+      const triggerMascot = (state, duration = 1000) => {
+        mascotMode = "action";
+        window.clearTimeout(mascotIdleTimer);
+        window.clearTimeout(mascotActionTimer);
+        setMascotState(state);
+        mascotActionTimer = window.setTimeout(restoreMascotMode, duration);
+      };
+
+      const watchInput = () => {
+        if (mascotMode === "action") {
+          return;
+        }
+
+        mascotMode = "input";
+        window.clearTimeout(mascotIdleTimer);
+        setMascotState("look-input");
+      };
+
+      const leaveInput = () => {
+        if (mascotMode === "action") {
+          return;
+        }
+
+        mascotMode = "idle";
+        setMascotState("idle-center");
+        scheduleMascotIdle();
       };
 
       const showExchange = (prompt, response) => {
@@ -1579,14 +1893,28 @@
           return;
         }
 
+        triggerMascot("look-send", 1300);
         promptButtons.forEach((item) => item.classList.remove("is-active"));
         showExchange(prompt, `I'll route this as a portfolio brief: ${prompt}`);
       });
 
+      mascot.addEventListener("click", () => triggerMascot("startled", 1050));
+      promptInput.addEventListener("focus", watchInput);
+      promptInput.addEventListener("input", watchInput);
+      promptInput.addEventListener("blur", () => {
+        window.setTimeout(() => {
+          if (document.activeElement !== promptInput) {
+            leaveInput();
+          }
+        }, 90);
+      });
+      sendButton.addEventListener("pointerdown", () => triggerMascot("look-send", 1300));
+      sendButton.addEventListener("focus", () => triggerMascot("look-send", 900));
       followups.addEventListener("scroll", updateFollowupFade, { passive: true });
       window.addEventListener("resize", updateFollowupFade);
       window.addEventListener("load", updateFollowupFade);
       updateFollowupFade();
+      scheduleMascotIdle();
     </script>
   </body>
 </html>
