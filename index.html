@@ -111,7 +111,7 @@
       .assistant-console {
         position: absolute;
         left: 50%;
-        bottom: clamp(22px, 5.6vh, 56px);
+        bottom: clamp(160px, 28vh, 270px);
         z-index: 4;
         width: min(860px, calc(100vw - 48px));
         opacity: 0;
@@ -123,7 +123,7 @@
         display: grid;
         gap: 10px;
         width: min(720px, 100%);
-        margin: 0 auto clamp(86px, 13vh, 146px);
+        margin: 0 auto 10px;
       }
 
       .message-row {
@@ -216,15 +216,24 @@
       }
 
       .followups {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        display: flex;
+        flex-wrap: nowrap;
         gap: 8px;
-        width: min(760px, 100%);
-        margin: 0 auto 12px;
+        width: min(860px, 100%);
+        margin: 12px auto 0;
+        padding: 0 2px 8px;
+        overflow-x: auto;
+        overscroll-behavior-inline: contain;
+        scrollbar-width: none;
+      }
+
+      .followups::-webkit-scrollbar {
+        display: none;
       }
 
       .followup {
         display: grid;
+        flex: 0 0 clamp(190px, 22vw, 238px);
         grid-template-columns: minmax(0, 1fr) 24px;
         align-items: center;
         min-height: 48px;
@@ -291,6 +300,8 @@
         position: relative;
         overflow: hidden;
         display: grid;
+        width: min(720px, 100%);
+        margin: 0 auto;
         grid-template-columns: minmax(0, 1fr) auto;
         align-items: end;
         gap: 10px;
@@ -1132,11 +1143,11 @@
 
         .thread {
           gap: 8px;
-          margin-bottom: 58px;
+          margin-bottom: 10px;
         }
 
         .assistant-console.has-user .thread {
-          margin-bottom: 150px;
+          margin-bottom: 10px;
         }
 
         .assistant-console.has-user .followups {
@@ -1167,12 +1178,16 @@
         }
 
         .followups {
+          display: grid;
           grid-template-columns: 1fr;
           gap: 7px;
-          margin-bottom: 10px;
+          margin-top: 10px;
+          padding: 0;
+          overflow: visible;
         }
 
         .followup {
+          flex-basis: auto;
           width: 100%;
           min-height: 42px;
           border-radius: 21px;
@@ -1278,6 +1293,26 @@
               </div>
             </div>
           </div>
+          <form class="composer" aria-label="Ask Tim's portfolio agent">
+            <input
+              class="prompt-input"
+              id="portfolio-prompt"
+              type="text"
+              placeholder="Ask anything about Tim's work..."
+            />
+            <button class="send-button" type="submit" aria-label="Send prompt">
+              <svg class="send-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M12 19V5m0 0-6 6m6-6 6 6"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2.4"
+                />
+              </svg>
+            </button>
+          </form>
           <div class="followups" aria-label="Suggested follow-up questions">
             <button
               class="followup"
@@ -1334,26 +1369,6 @@
               <span class="followup-arrow" aria-hidden="true">→</span>
             </button>
           </div>
-          <form class="composer" aria-label="Ask Tim's portfolio agent">
-            <input
-              class="prompt-input"
-              id="portfolio-prompt"
-              type="text"
-              placeholder="Ask anything about Tim's work..."
-            />
-            <button class="send-button" type="submit" aria-label="Send prompt">
-              <svg class="send-icon" viewBox="0 0 24 24" aria-hidden="true">
-                <path
-                  d="M12 19V5m0 0-6 6m6-6 6 6"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2.4"
-                />
-              </svg>
-            </button>
-          </form>
         </div>
       </section>
     </main>
