@@ -257,6 +257,10 @@
           box-shadow 160ms var(--ease-out);
       }
 
+      .followup.is-used {
+        display: none;
+      }
+
       .followup:hover,
       .followup:focus-visible,
       .followup.is-active {
@@ -1150,10 +1154,6 @@
           margin-bottom: 10px;
         }
 
-        .assistant-console.has-user .followups {
-          display: none;
-        }
-
         .message-bubble {
           max-width: 94%;
           border-radius: 24px;
@@ -1394,6 +1394,7 @@
           button.classList.add("is-active");
           promptInput.value = button.dataset.prompt;
           showExchange(button.dataset.prompt, button.dataset.response);
+          button.classList.add("is-used");
           promptInput.focus({ preventScroll: true });
         });
       });
