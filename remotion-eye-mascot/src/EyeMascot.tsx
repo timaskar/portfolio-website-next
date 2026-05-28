@@ -32,7 +32,7 @@ const segment = (
     easing,
   });
 
-const bootGlyphs = "010110<>/_+=";
+const bootGlyphs = "0101101001110010";
 const statusSteps = [
   { text: "waking up...", from: 2, to: 35 },
   { text: "someone joined", from: 35, to: 59 },
@@ -54,41 +54,47 @@ const Dot: React.FC<{
   const distanceY = Math.abs(row - 5.5) / 5.5;
   const noise = ((row * 17 + col * 31 + eye * 13) % 9) / 100;
   const booting = progress < 35;
+  const shimmer = (Math.sin(progress * 0.28 + row * 0.72 + col * 1.14 + eye * 1.8) + 1) / 2;
   const baseOpacity = clamp(0.96 - distanceX * 0.1 - distanceY * 0.18 + noise, 0.38, 1);
   const collapseMask = clamp(1 - Math.abs(row - 5.5) * blink * 0.34, 0, 1);
   const opacity = baseOpacity * collapseMask;
   const glyph = bootGlyphs[(index * 7 + Math.floor(progress * 2.4) * 5) % bootGlyphs.length];
+  const glyphOpacity = booting
+    ? 0.96
+    : clamp((0.42 + shimmer * 0.4 - distanceY * 0.1 + noise) * collapseMask, 0.16, 0.9);
+  const cellGlow = booting ? 0.64 : opacity * (0.42 + shimmer * 0.2);
 
   return (
     <span
       style={{
         width: 5,
         height: 5,
-        borderRadius: booting ? 1 : 999,
+        borderRadius: 1,
         display: "grid",
         placeItems: "center",
         backgroundColor: booting
           ? "rgba(242, 242, 238, 0.12)"
-          : `rgba(${color}, ${opacity})`,
-        color: booting ? "rgba(242, 242, 238, 0.96)" : "transparent",
+          : `rgba(${color}, ${opacity * 0.16})`,
+        color: `rgba(${color}, ${glyphOpacity})`,
         fontFamily: '"IBM Plex Mono", "JetBrains Mono", SFMono-Regular, Consolas, monospace',
-        fontSize: 7.5,
+        fontSize: booting ? 7.5 : 7.2,
         fontWeight: 800,
         lineHeight: "5px",
-        transform: booting ? "scale(1.18)" : "none",
-        textShadow: booting
-          ? "0 0 5px rgba(242, 242, 238, 0.74), 0 0 13px rgba(242, 242, 238, 0.32)"
-          : "none",
+        transform: `scale(${booting ? 1.18 : mix(1.02, 1.14, shimmer)})`,
+        textShadow: [
+          `0 0 ${booting ? 5 : mix(3, 6, shimmer)}px rgba(${color}, ${booting ? 0.74 : glyphOpacity * 0.56})`,
+          `0 0 ${booting ? 13 : mix(9, 17, shimmer)}px rgba(${color}, ${booting ? 0.32 : glyphOpacity * 0.22})`,
+        ].join(", "),
         boxShadow: booting
           ? "0 0 6px rgba(242, 242, 238, 0.64), 0 0 16px rgba(242, 242, 238, 0.26)"
           : [
-              `0 0 ${4 * glowStrength}px rgba(${color}, ${opacity * 0.82})`,
-              `0 0 ${12 * glowStrength}px rgba(${color}, ${opacity * 0.44})`,
-              `0 0 ${24 * glowStrength}px rgba(${color}, ${opacity * 0.18})`,
+              `0 0 ${4 * glowStrength}px rgba(${color}, ${cellGlow})`,
+              `0 0 ${12 * glowStrength}px rgba(${color}, ${cellGlow * 0.42})`,
+              `0 0 ${24 * glowStrength}px rgba(${color}, ${cellGlow * 0.16})`,
             ].join(", "),
       }}
     >
-      {booting ? glyph : ""}
+      {glyph}
     </span>
   );
 };
