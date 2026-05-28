@@ -123,7 +123,7 @@
         display: grid;
         gap: 10px;
         width: min(720px, 100%);
-        margin: 0 auto 12px;
+        margin: 0 auto clamp(86px, 13vh, 146px);
       }
 
       .message-row {
@@ -183,7 +183,7 @@
       }
 
       .agent-name,
-      .prompt-chip,
+      .followup,
       .send-button {
         font-weight: 650;
       }
@@ -215,27 +215,31 @@
         line-height: 1.35;
       }
 
-      .prompt-shelf {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 9px;
-        margin-bottom: 12px;
+      .followups {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+        width: min(760px, 100%);
+        margin: 0 auto 12px;
       }
 
-      .prompt-chip {
-        min-height: 36px;
+      .followup {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 24px;
+        align-items: center;
+        min-height: 48px;
         min-width: 0;
-        border: 1px solid rgba(255, 255, 255, 0.13);
-        border-radius: 999px;
-        padding: 8px 15px;
-        background: rgba(255, 255, 255, 0.06);
-        -webkit-backdrop-filter: blur(20px) saturate(1.24);
-        backdrop-filter: blur(20px) saturate(1.24);
-        color: rgba(242, 242, 238, 0.72);
-        font-size: 13px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 24px;
+        padding: 10px 11px 10px 17px;
+        background: rgba(255, 255, 255, 0.055);
+        -webkit-backdrop-filter: blur(22px) saturate(1.22);
+        backdrop-filter: blur(22px) saturate(1.22);
+        color: rgba(242, 242, 238, 0.76);
+        font-size: 14px;
         letter-spacing: 0;
         line-height: 1.2;
+        text-align: left;
         cursor: pointer;
         transition:
           border-color 160ms var(--ease-out),
@@ -244,14 +248,43 @@
           box-shadow 160ms var(--ease-out);
       }
 
-      .prompt-chip:hover,
-      .prompt-chip:focus-visible,
-      .prompt-chip.is-active {
+      .followup:hover,
+      .followup:focus-visible,
+      .followup.is-active {
         border-color: rgba(230, 255, 248, 0.32);
         background: rgba(230, 255, 248, 0.12);
         color: var(--text-primary);
         outline: none;
         box-shadow: 0 0 28px rgba(230, 255, 248, 0.1);
+      }
+
+      .followup-text {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .followup-arrow {
+        display: grid;
+        place-items: center;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        color: rgba(242, 242, 238, 0.68);
+        background: rgba(255, 255, 255, 0.06);
+        transition:
+          background 160ms var(--ease-out),
+          color 160ms var(--ease-out),
+          transform 160ms var(--ease-out);
+      }
+
+      .followup:hover .followup-arrow,
+      .followup:focus-visible .followup-arrow,
+      .followup.is-active .followup-arrow {
+        color: var(--text-primary);
+        background: rgba(255, 255, 255, 0.12);
+        transform: translateX(2px);
       }
 
       .composer {
@@ -279,17 +312,14 @@
 
       .prompt-input {
         width: 100%;
-        min-height: 48px;
-        max-height: 112px;
+        height: 48px;
         border: 0;
-        padding: 12px 2px;
-        resize: none;
-        overflow: hidden;
+        padding: 0 2px;
         background: transparent;
         color: var(--text-primary);
         font: inherit;
         font-size: 16px;
-        line-height: 1.45;
+        line-height: 48px;
         letter-spacing: 0;
         outline: none;
       }
@@ -301,7 +331,8 @@
       .send-button {
         display: grid;
         place-items: center;
-        min-width: 56px;
+        width: 48px;
+        min-width: 48px;
         height: 48px;
         border: 1px solid rgba(255, 255, 255, 0.18);
         border-radius: 999px;
@@ -309,8 +340,6 @@
         -webkit-backdrop-filter: blur(18px) saturate(1.18);
         backdrop-filter: blur(18px) saturate(1.18);
         color: var(--text-primary);
-        font-size: 14px;
-        letter-spacing: 0;
         cursor: pointer;
         box-shadow:
           inset 0 1px 0 rgba(255, 255, 255, 0.14),
@@ -329,6 +358,11 @@
         box-shadow:
           inset 0 1px 0 rgba(255, 255, 255, 0.18),
           0 0 30px rgba(255, 255, 255, 0.1);
+      }
+
+      .send-icon {
+        width: 18px;
+        height: 18px;
       }
 
       .face-stage {
@@ -1098,7 +1132,15 @@
 
         .thread {
           gap: 8px;
-          margin-bottom: 10px;
+          margin-bottom: 58px;
+        }
+
+        .assistant-console.has-user .thread {
+          margin-bottom: 150px;
+        }
+
+        .assistant-console.has-user .followups {
+          display: none;
         }
 
         .message-bubble {
@@ -1124,16 +1166,22 @@
           font-size: 14px;
         }
 
-        .prompt-shelf {
-          display: grid;
-          grid-template-columns: repeat(2, minmax(0, 1fr));
+        .followups {
+          grid-template-columns: 1fr;
           gap: 7px;
+          margin-bottom: 10px;
         }
 
-        .prompt-chip {
+        .followup {
           width: 100%;
-          padding: 10px 12px;
-          font-size: 12px;
+          min-height: 42px;
+          border-radius: 21px;
+          padding: 9px 10px 9px 14px;
+          font-size: 13px;
+        }
+
+        .followup:nth-child(n + 5) {
+          display: none;
         }
 
         .composer {
@@ -1143,15 +1191,21 @@
         }
 
         .prompt-input {
-          min-height: 42px;
+          height: 42px;
           padding: 8px 2px;
           font-size: 14px;
+          line-height: 26px;
         }
 
         .send-button {
-          min-width: 48px;
+          width: 42px;
+          min-width: 42px;
           height: 42px;
-          font-size: 13px;
+        }
+
+        .send-icon {
+          width: 16px;
+          height: 16px;
         }
 
         .metrics {
@@ -1224,82 +1278,96 @@
               </div>
             </div>
           </div>
-          <div class="prompt-shelf" aria-label="Prepared prompts">
+          <div class="followups" aria-label="Suggested follow-up questions">
             <button
-              class="prompt-chip"
+              class="followup"
               type="button"
               data-prompt="Which case should I open first?"
               data-response="Start with the case that best shows problem framing, shipped decisions, and measurable product impact."
             >
-              What should I see first?
+              <span class="followup-text">What should I see first?</span>
+              <span class="followup-arrow" aria-hidden="true">→</span>
             </button>
             <button
-              class="prompt-chip"
+              class="followup"
               type="button"
               data-prompt="Why is Tim a strong fit for Revolut?"
               data-response="For Revolut, I would look at systems thinking: evidence, constraints, metrics, and calm high-density fintech UI."
             >
-              Why Revolut?
+              <span class="followup-text">Why Revolut?</span>
+              <span class="followup-arrow" aria-hidden="true">→</span>
             </button>
             <button
-              class="prompt-chip"
+              class="followup"
               type="button"
               data-prompt="Summarize Tim's strongest sides in 30 seconds."
               data-response="Tim is strongest where product strategy, research loops, interface craft, and execution discipline meet."
             >
-              Strengths in 30 sec
+              <span class="followup-text">Strengths in 30 sec</span>
+              <span class="followup-arrow" aria-hidden="true">→</span>
             </button>
             <button
-              class="prompt-chip"
+              class="followup"
               type="button"
               data-prompt="Where did Tim work before and what did he own?"
               data-response="I can map his previous roles into product domains, responsibilities, and the kind of decisions he owned."
             >
-              Experience
+              <span class="followup-text">Experience</span>
+              <span class="followup-arrow" aria-hidden="true">→</span>
             </button>
             <button
-              class="prompt-chip"
+              class="followup"
               type="button"
               data-prompt="Show me measurable product impact."
               data-response="Let's pull out the numbers first: user scale, conversion movement, research speed, and shipped business impact."
             >
-              Impact
+              <span class="followup-text">Impact</span>
+              <span class="followup-arrow" aria-hidden="true">→</span>
             </button>
             <button
-              class="prompt-chip"
+              class="followup"
               type="button"
               data-prompt="How does Tim make design decisions?"
               data-response="His process should read as signal over noise: define the problem, find evidence, model tradeoffs, ship clearly."
             >
-              Process
+              <span class="followup-text">Process</span>
+              <span class="followup-arrow" aria-hidden="true">→</span>
             </button>
           </div>
           <form class="composer" aria-label="Ask Tim's portfolio agent">
-            <textarea
+            <input
               class="prompt-input"
               id="portfolio-prompt"
-              rows="1"
+              type="text"
               placeholder="Ask anything about Tim's work..."
-            ></textarea>
-            <button class="send-button" type="submit" aria-label="Send prompt">Ask</button>
+            />
+            <button class="send-button" type="submit" aria-label="Send prompt">
+              <svg class="send-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M12 19V5m0 0-6 6m6-6 6 6"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2.4"
+                />
+              </svg>
+            </button>
           </form>
         </div>
       </section>
     </main>
     <script>
       const assistantMessage = document.querySelector("#assistant-message");
+      const assistantConsole = document.querySelector(".assistant-console");
       const userMessage = document.querySelector("#user-message");
       const userMessageRow = document.querySelector("#user-message-row");
       const promptInput = document.querySelector("#portfolio-prompt");
-      const promptButtons = document.querySelectorAll(".prompt-chip");
+      const promptButtons = document.querySelectorAll(".followup");
       const composer = document.querySelector(".composer");
 
-      const resizeInput = () => {
-        promptInput.style.height = "auto";
-        promptInput.style.height = `${Math.min(promptInput.scrollHeight, 112)}px`;
-      };
-
       const showExchange = (prompt, response) => {
+        assistantConsole.classList.add("has-user");
         userMessage.textContent = prompt;
         userMessageRow.hidden = false;
         assistantMessage.textContent = response;
@@ -1311,12 +1379,9 @@
           button.classList.add("is-active");
           promptInput.value = button.dataset.prompt;
           showExchange(button.dataset.prompt, button.dataset.response);
-          resizeInput();
           promptInput.focus({ preventScroll: true });
         });
       });
-
-      promptInput.addEventListener("input", resizeInput);
 
       composer.addEventListener("submit", (event) => {
         event.preventDefault();
@@ -1329,7 +1394,6 @@
 
         promptButtons.forEach((item) => item.classList.remove("is-active"));
         showExchange(prompt, `I'll route this as a portfolio brief: ${prompt}`);
-        resizeInput();
       });
     </script>
   </body>
