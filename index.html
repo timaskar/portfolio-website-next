@@ -105,7 +105,7 @@
         display: grid;
         place-items: center;
         width: min(220px, 24vw);
-        aspect-ratio: 420 / 260;
+        aspect-ratio: 284 / 162;
         border: 0;
         padding: 0;
         background: transparent;
@@ -143,13 +143,13 @@
       }
 
       .chat-eye {
-        top: 56%;
-        width: 34px;
-        height: 70px;
+        top: 47%;
+        width: 36px;
+        height: 74px;
         grid-template-columns: repeat(5, 4px);
         grid-auto-rows: 4px;
         gap: 2px;
-        border-radius: 8px;
+        border-radius: 5px;
         translate: 0 -50%;
         filter:
           drop-shadow(0 0 8px rgba(242, 242, 238, 0.44))
@@ -157,33 +157,33 @@
       }
 
       .chat-eye-left {
-        left: 31%;
+        left: 21.1%;
       }
 
       .chat-eye-right {
-        right: 31%;
+        right: 21.1%;
       }
 
       .chat-brow {
-        top: 20%;
-        width: 46px;
-        height: 14px;
-        grid-template-columns: repeat(7, 4px);
+        top: -17%;
+        width: 57px;
+        height: 19px;
+        grid-template-columns: repeat(8, 4px);
         grid-auto-rows: 4px;
         gap: 2px;
-        opacity: 0.78;
+        opacity: 0.86;
         filter:
-          drop-shadow(0 0 6px rgba(242, 242, 238, 0.28))
-          drop-shadow(0 0 16px rgba(242, 242, 238, 0.1));
+          drop-shadow(0 0 8px rgba(242, 242, 238, 0.3))
+          drop-shadow(0 0 18px rgba(242, 242, 238, 0.12));
       }
 
       .chat-brow-left {
-        left: 26%;
+        left: 8.5%;
         transform: translate3d(0, 0, 0) rotateZ(4deg);
       }
 
       .chat-brow-right {
-        right: 26%;
+        right: 8.5%;
         transform: translate3d(0, 0, 0) rotateZ(-4deg);
       }
 
@@ -192,11 +192,11 @@
         place-items: center;
         width: 4px;
         height: 4px;
-        border-radius: 50%;
-        background: rgba(242, 242, 238, var(--o, 0.82));
-        color: rgba(242, 242, 238, 0.86);
+        border-radius: 1px;
+        background: rgba(242, 242, 238, calc(var(--o, 0.82) * 0.16));
+        color: rgba(242, 242, 238, 0.9);
         font-family: "IBM Plex Mono", "JetBrains Mono", SFMono-Regular, Consolas, monospace;
-        font-size: 4px;
+        font-size: 5.4px;
         font-weight: 800;
         line-height: 1;
         text-shadow:
@@ -209,7 +209,7 @@
       }
 
       .chat-brow .chat-led {
-        opacity: 0.74;
+        opacity: 0.82;
       }
 
       .chat-mascot[data-state="idle-left"] .chat-face {
@@ -1747,7 +1747,7 @@
       const sendButton = document.querySelector(".send-button");
       const mascot = document.querySelector(".chat-mascot");
       const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      const ledGlyphs = ["0", "1", "3", "5", "8", "9", "A", "S", "K", "+", "?"];
+      const ledGlyphs = ["0", "1"];
       const ledPixels = [];
       let mascotMode = "idle";
       let mascotIdleTimer;
@@ -1766,13 +1766,15 @@
 
       document.querySelectorAll("[data-led-strip]").forEach((strip) => {
         const isEye = strip.dataset.ledStrip === "eye";
-        const count = isEye ? 45 : 7;
+        const count = isEye ? 60 : 24;
 
         for (let index = 0; index < count; index += 1) {
           const pixel = document.createElement("span");
-          const column = isEye ? index % 5 : index;
-          const row = isEye ? Math.floor(index / 5) : 0;
-          const centerFalloff = Math.abs(column - 2) * 0.04 + Math.abs(row - 4) * 0.012;
+          const column = isEye ? index % 5 : index % 8;
+          const row = isEye ? Math.floor(index / 5) : Math.floor(index / 8);
+          const rowCenter = isEye ? 5.5 : 1;
+          const colCenter = isEye ? 2 : 3.5;
+          const centerFalloff = Math.abs(column - colCenter) * 0.04 + Math.abs(row - rowCenter) * 0.012;
           const opacity = Math.max(0.48, 0.9 - centerFalloff - Math.random() * 0.1);
 
           pixel.className = "chat-led";
