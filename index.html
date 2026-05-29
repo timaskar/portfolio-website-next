@@ -626,22 +626,33 @@
         line-height: 1.45;
       }
 
+      .followup-rail {
+        position: relative;
+        order: 2;
+        width: min(560px, 100%);
+        margin: 9px auto 0;
+      }
+
+      .assistant-console.has-user .followup-rail {
+        order: 2;
+        margin: 0 auto 10px;
+      }
+
       .followups {
         display: flex;
         flex-wrap: nowrap;
         gap: 7px;
-        order: 2;
-        width: min(560px, 100%);
-        margin: 9px auto 0;
+        width: 100%;
+        margin: 0;
         padding: 0 0 7px;
         overflow-x: auto;
         overscroll-behavior-inline: contain;
+        scroll-behavior: smooth;
         scrollbar-width: none;
       }
 
       .assistant-console.has-user .followups {
-        order: 2;
-        margin: 0 auto 10px;
+        margin: 0;
       }
 
       .followups.has-overflow.is-at-start {
@@ -695,6 +706,63 @@
         display: none;
       }
 
+      .followup-scroll {
+        position: absolute;
+        top: calc(50% - 3px);
+        z-index: 2;
+        display: grid;
+        place-items: center;
+        width: 30px;
+        height: 30px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 50%;
+        background: rgba(20, 20, 20, 0.72);
+        color: rgba(242, 242, 238, 0.8);
+        -webkit-backdrop-filter: blur(22px) saturate(1.22);
+        backdrop-filter: blur(22px) saturate(1.22);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.1),
+          0 12px 28px rgba(0, 0, 0, 0.28);
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(-50%) scale(0.94);
+        transition:
+          opacity 150ms var(--ease-out),
+          background 150ms var(--ease-out),
+          transform 150ms var(--ease-out);
+      }
+
+      .followup-scroll[hidden] {
+        display: none;
+      }
+
+      .followup-scroll.prev {
+        left: -12px;
+      }
+
+      .followup-scroll.next {
+        right: -12px;
+      }
+
+      .followup-scroll svg {
+        width: 15px;
+        height: 15px;
+      }
+
+      .followup-rail:hover .followup-scroll:not([hidden]),
+      .followup-rail:focus-within .followup-scroll:not([hidden]) {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateY(-50%) scale(1);
+      }
+
+      .followup-scroll:hover,
+      .followup-scroll:focus-visible {
+        background: rgba(255, 255, 255, 0.12);
+        color: var(--text-primary);
+        outline: none;
+      }
+
       .followup {
         display: grid;
         flex: 0 0 auto;
@@ -703,7 +771,7 @@
         align-items: center;
         min-height: 36px;
         min-width: 0;
-        max-width: 230px;
+        max-width: 280px;
         border: 1px solid rgba(255, 255, 255, 0.12);
         border-radius: 18px;
         padding: 7px 9px 7px 13px;
@@ -1714,15 +1782,24 @@
           font-size: 14px;
         }
 
+        .followup-rail {
+          width: 100%;
+          margin-top: 10px;
+        }
+
         .followups {
           display: grid;
           grid-template-columns: 1fr;
           gap: 7px;
-          margin-top: 10px;
+          margin: 0;
           padding: 0;
           overflow: visible;
           -webkit-mask-image: none;
           mask-image: none;
+        }
+
+        .followup-scroll {
+          display: none;
         }
 
         .followup {
@@ -1867,60 +1944,80 @@
               </svg>
             </button>
           </form>
-          <div class="followups" aria-label="Suggested follow-up questions">
+          <div class="followup-rail">
+            <div class="followups" aria-label="Suggested follow-up questions">
+              <button
+                class="followup"
+                type="button"
+                data-prompt="Show me Tim's work."
+                data-response="Start with selected case studies: platform systems, gaming growth, fintech distribution, and AI-enabled design workflows."
+              >
+                <span class="followup-text">Show me his work</span>
+                <span class="followup-arrow" aria-hidden="true">→</span>
+              </button>
+              <button
+                class="followup"
+                type="button"
+                data-prompt="Tell me about Tim's experience."
+                data-response="Tim's strongest signal is lead-level product design: shipped products, business metrics, design systems, research operations, and close engineering partnership."
+              >
+                <span class="followup-text">Tell me about his experience</span>
+                <span class="followup-arrow" aria-hidden="true">→</span>
+              </button>
+              <button
+                class="followup"
+                type="button"
+                data-prompt="How can I connect with Tim?"
+                data-response="Best next step: reach out directly for portfolio context, case walkthroughs, availability, or a focused Revolut-style review."
+              >
+                <span class="followup-text">How to connect with Tim?</span>
+                <span class="followup-arrow" aria-hidden="true">→</span>
+              </button>
+              <button
+                class="followup"
+                type="button"
+                data-prompt="Download Tim's CV."
+                data-response="I'll surface the CV as a downloadable file here once the latest PDF is connected to the site."
+              >
+                <span class="followup-text">Download CV</span>
+                <span class="followup-arrow" aria-hidden="true">→</span>
+              </button>
+            </div>
             <button
-              class="followup"
+              class="followup-scroll prev"
               type="button"
-              data-prompt="Which case should I open first?"
-              data-response="Start with the case that best shows problem framing, shipped decisions, and measurable product impact."
+              data-direction="prev"
+              aria-label="Scroll suggestions left"
+              hidden
             >
-              <span class="followup-text">What should I see first?</span>
-              <span class="followup-arrow" aria-hidden="true">→</span>
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M15 18l-6-6 6-6"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2.4"
+                />
+              </svg>
             </button>
             <button
-              class="followup"
+              class="followup-scroll next"
               type="button"
-              data-prompt="Why is Tim a strong fit for Revolut?"
-              data-response="For Revolut, I would look at systems thinking: evidence, constraints, metrics, and calm high-density fintech UI."
+              data-direction="next"
+              aria-label="Scroll suggestions right"
+              hidden
             >
-              <span class="followup-text">Why Revolut?</span>
-              <span class="followup-arrow" aria-hidden="true">→</span>
-            </button>
-            <button
-              class="followup"
-              type="button"
-              data-prompt="Summarize Tim's strongest sides in 30 seconds."
-              data-response="Tim is strongest where product strategy, research loops, interface craft, and execution discipline meet."
-            >
-              <span class="followup-text">Strengths in 30 sec</span>
-              <span class="followup-arrow" aria-hidden="true">→</span>
-            </button>
-            <button
-              class="followup"
-              type="button"
-              data-prompt="Where did Tim work before and what did he own?"
-              data-response="I can map his previous roles into product domains, responsibilities, and the kind of decisions he owned."
-            >
-              <span class="followup-text">Experience</span>
-              <span class="followup-arrow" aria-hidden="true">→</span>
-            </button>
-            <button
-              class="followup"
-              type="button"
-              data-prompt="Show me measurable product impact."
-              data-response="Let's pull out the numbers first: user scale, conversion movement, research speed, and shipped business impact."
-            >
-              <span class="followup-text">Impact</span>
-              <span class="followup-arrow" aria-hidden="true">→</span>
-            </button>
-            <button
-              class="followup"
-              type="button"
-              data-prompt="How does Tim make design decisions?"
-              data-response="His process should read as signal over noise: define the problem, find evidence, model tradeoffs, ship clearly."
-            >
-              <span class="followup-text">Process</span>
-              <span class="followup-arrow" aria-hidden="true">→</span>
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M9 6l6 6-6 6"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2.4"
+                />
+              </svg>
             </button>
           </div>
         </div>
@@ -1933,7 +2030,9 @@
       const userMessageRow = document.querySelector("#user-message-row");
       const promptInput = document.querySelector("#portfolio-prompt");
       const promptButtons = document.querySelectorAll(".followup");
+      const followupRail = document.querySelector(".followup-rail");
       const followups = document.querySelector(".followups");
+      const followupScrollButtons = document.querySelectorAll(".followup-scroll");
       const composer = document.querySelector(".composer");
       const sendButton = document.querySelector(".send-button");
       const mascot = document.querySelector(".chat-mascot");
@@ -1979,12 +2078,34 @@
       let mascotIdleTimer;
 
       const updateFollowupFade = () => {
-        const maxScroll = followups.scrollWidth - followups.clientWidth;
+        const maxScroll = Math.max(0, followups.scrollWidth - followups.clientWidth);
         const scrollLeft = Math.round(followups.scrollLeft);
+        const hasOverflow = maxScroll > 1;
+        const isAtStart = maxScroll <= 1 || scrollLeft <= 1;
+        const isAtEnd = maxScroll <= 1 || scrollLeft >= maxScroll - 1;
 
-        followups.classList.toggle("has-overflow", maxScroll > 1);
-        followups.classList.toggle("is-at-start", maxScroll <= 1 || scrollLeft <= 1);
-        followups.classList.toggle("is-at-end", maxScroll <= 1 || scrollLeft >= maxScroll - 1);
+        followups.classList.toggle("has-overflow", hasOverflow);
+        followups.classList.toggle("is-at-start", isAtStart);
+        followups.classList.toggle("is-at-end", isAtEnd);
+        followupRail.classList.toggle("has-overflow", hasOverflow);
+
+        followupScrollButtons.forEach((button) => {
+          const direction = button.dataset.direction;
+          button.hidden =
+            !hasOverflow ||
+            (direction === "prev" && isAtStart) ||
+            (direction === "next" && isAtEnd);
+        });
+      };
+
+      const scrollFollowups = (direction) => {
+        const distance = Math.max(180, followups.clientWidth * 0.68);
+
+        followups.scrollBy({
+          left: direction * distance,
+          behavior: reduceMotion ? "auto" : "smooth",
+        });
+        window.setTimeout(updateFollowupFade, reduceMotion ? 0 : 260);
       };
 
       const setMascotClip = (clipName, options = {}) => {
@@ -2169,6 +2290,11 @@
       });
       sendButton.addEventListener("pointerdown", () => playMascotAction("send", "input"));
       sendButton.addEventListener("focus", () => playMascotAction("send", "input"));
+      followupScrollButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          scrollFollowups(button.dataset.direction === "next" ? 1 : -1);
+        });
+      });
       followups.addEventListener("scroll", updateFollowupFade, { passive: true });
       window.addEventListener("resize", updateFollowupFade);
       window.addEventListener("load", updateFollowupFade);
