@@ -11,6 +11,9 @@
     "render:mascot:awake": "remotion render MascotAwakeLoop ../assets/mascot-awake-loop.mp4 --codec=h264 --pixel-format=yuv420p --crf=20",
     "render:mascot:wake": "remotion render MascotWake ../assets/mascot-wake.mp4 --codec=h264 --pixel-format=yuv420p --crf=20",
     "render:mascot:input": "remotion render MascotInputLoop ../assets/mascot-input-loop.mp4 --codec=h264 --pixel-format=yuv420p --crf=20",
+    "render:mascot:look-input": "remotion render MascotLookInput ../assets/mascot-look-input.mp4 --codec=h264 --pixel-format=yuv420p --crf=20",
+    "render:mascot:sleep-transition": "remotion render MascotFallAsleep ../assets/mascot-fall-asleep.mp4 --codec=h264 --pixel-format=yuv420p --crf=20",
+    "render:mascot:startle": "remotion render MascotStartle ../assets/mascot-startle.mp4 --codec=h264 --pixel-format=yuv420p --crf=20",
     "render:mascot:send": "remotion render MascotSend ../assets/mascot-send.mp4 --codec=h264 --pixel-format=yuv420p --crf=20"
   },
   "dependencies": {

@@ -57,6 +57,33 @@ export const Root: React.FC = () => {
         defaultProps={{ variant: "input" }}
       />
       <Composition
+        id="MascotLookInput"
+        component={MascotClip}
+        durationInFrames={72}
+        fps={60}
+        width={1024}
+        height={640}
+        defaultProps={{ variant: "lookInput" }}
+      />
+      <Composition
+        id="MascotFallAsleep"
+        component={MascotClip}
+        durationInFrames={96}
+        fps={60}
+        width={1024}
+        height={640}
+        defaultProps={{ variant: "fallAsleep" }}
+      />
+      <Composition
+        id="MascotStartle"
+        component={MascotClip}
+        durationInFrames={72}
+        fps={60}
+        width={1024}
+        height={640}
+        defaultProps={{ variant: "startle" }}
+      />
+      <Composition
         id="MascotSend"
         component={MascotClip}
         durationInFrames={90}

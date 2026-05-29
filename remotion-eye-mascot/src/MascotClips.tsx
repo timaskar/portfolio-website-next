@@ -7,10 +7,41 @@ import {
   useVideoConfig,
 } from "remotion";
 
-type ClipVariant = "sleep" | "awake" | "wake" | "input" | "send";
+type ClipVariant =
+  | "sleep"
+  | "awake"
+  | "wake"
+  | "input"
+  | "send"
+  | "startle"
+  | "lookInput"
+  | "fallAsleep";
 
 type MascotClipProps = {
   variant: ClipVariant;
+};
+
+type Pose = {
+  faceX: number;
+  faceY: number;
+  yaw: number;
+  rotate: number;
+  scale: number;
+  eyeX: number;
+  eyeY: number;
+  eyeScaleX: number;
+  eyeScaleY: number;
+  eyeOpacity: number;
+  browLiftLeft: number;
+  browLiftRight: number;
+  browAngleLeft: number;
+  browAngleRight: number;
+  browYLeft: number;
+  browYRight: number;
+  glowOpacity: number;
+  glowScaleY: number;
+  zOpacity: number;
+  intensity: number;
 };
 
 const DOT_COLOR = "242, 242, 238";
@@ -260,133 +291,207 @@ const Glow: React.FC<{
   />
 );
 
+const sleepPose = (): Pose => ({
+  faceX: 0,
+  faceY: 8,
+  yaw: 0,
+  rotate: 0,
+  scale: 0.96,
+  eyeX: 0,
+  eyeY: 0,
+  eyeScaleX: 1.05,
+  eyeScaleY: 0.075,
+  eyeOpacity: 0.78,
+  browLiftLeft: 0.06,
+  browLiftRight: 0.06,
+  browAngleLeft: -1,
+  browAngleRight: 1,
+  browYLeft: 2,
+  browYRight: 2,
+  glowOpacity: 0.1,
+  glowScaleY: 0.2,
+  zOpacity: 1,
+  intensity: 0.74,
+});
+
+const awakePose = (): Pose => ({
+  faceX: 0,
+  faceY: 0,
+  yaw: 0,
+  rotate: 0,
+  scale: 1,
+  eyeX: 0,
+  eyeY: 0,
+  eyeScaleX: 0.96,
+  eyeScaleY: 1,
+  eyeOpacity: 0.94,
+  browLiftLeft: 0.12,
+  browLiftRight: 0.12,
+  browAngleLeft: 4,
+  browAngleRight: -4,
+  browYLeft: 0,
+  browYRight: 0,
+  glowOpacity: 0.28,
+  glowScaleY: 1,
+  zOpacity: 0,
+  intensity: 0.94,
+});
+
+const inputPose = (): Pose => ({
+  ...awakePose(),
+  faceY: 6,
+  eyeY: 8,
+  eyeScaleX: 0.97,
+  eyeScaleY: 0.96,
+  browLiftLeft: 0.2,
+  browLiftRight: 0.2,
+  browAngleLeft: 2,
+  browAngleRight: -2,
+  browYLeft: 2,
+  browYRight: 2,
+});
+
+const blendPose = (from: Pose, to: Pose, amount: number): Pose => ({
+  faceX: mix(from.faceX, to.faceX, amount),
+  faceY: mix(from.faceY, to.faceY, amount),
+  yaw: mix(from.yaw, to.yaw, amount),
+  rotate: mix(from.rotate, to.rotate, amount),
+  scale: mix(from.scale, to.scale, amount),
+  eyeX: mix(from.eyeX, to.eyeX, amount),
+  eyeY: mix(from.eyeY, to.eyeY, amount),
+  eyeScaleX: mix(from.eyeScaleX, to.eyeScaleX, amount),
+  eyeScaleY: mix(from.eyeScaleY, to.eyeScaleY, amount),
+  eyeOpacity: mix(from.eyeOpacity, to.eyeOpacity, amount),
+  browLiftLeft: mix(from.browLiftLeft, to.browLiftLeft, amount),
+  browLiftRight: mix(from.browLiftRight, to.browLiftRight, amount),
+  browAngleLeft: mix(from.browAngleLeft, to.browAngleLeft, amount),
+  browAngleRight: mix(from.browAngleRight, to.browAngleRight, amount),
+  browYLeft: mix(from.browYLeft, to.browYLeft, amount),
+  browYRight: mix(from.browYRight, to.browYRight, amount),
+  glowOpacity: mix(from.glowOpacity, to.glowOpacity, amount),
+  glowScaleY: mix(from.glowScaleY, to.glowScaleY, amount),
+  zOpacity: mix(from.zOpacity, to.zOpacity, amount),
+  intensity: mix(from.intensity, to.intensity, amount),
+});
+
 const getPose = (
   variant: ClipVariant,
   progress: number,
   loop: number,
-) => {
-  const wave = Math.sin(loop * Math.PI * 2);
-  const wave2 = Math.sin(loop * Math.PI * 4 + 0.8);
+): Pose => {
+  const sleep = sleepPose();
+  const awake = awakePose();
+  const input = inputPose();
 
   if (variant === "sleep") {
-    const breathe = wave * 1.3;
-    return {
-      faceX: wave * 1.4,
-      faceY: 8 + breathe,
-      yaw: wave * 1.4,
-      rotate: wave * 0.5,
-      scale: 0.96 + wave * 0.006,
-      eyeX: 0,
-      eyeY: 0,
-      eyeScaleX: 1.05,
-      eyeScaleY: 0.075,
-      eyeOpacity: 0.78,
-      browLiftLeft: 0.06,
-      browLiftRight: 0.06,
-      browAngleLeft: -1,
-      browAngleRight: 1,
-      browYLeft: 2,
-      browYRight: 2,
-      glowOpacity: 0.1,
-      glowScaleY: 0.2,
-      zOpacity: 1,
-      intensity: 0.74,
-    };
+    return sleep;
   }
 
   if (variant === "wake") {
-    const awake = segment(progress, 0.34, 0.58, easeOut);
+    const open = segment(progress, 0.18, 0.46, easeOut);
     const shake =
       interpolate(
         progress,
-        [0, 0.1, 0.18, 0.27, 0.36],
+        [0.08, 0.16, 0.24, 0.32, 0.42],
         [0, -1, 0.84, -0.46, 0],
         { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: easeInOut },
       ) *
-      (1 - segment(progress, 0.36, 0.56, easeOut));
-    const startled =
-      segment(progress, 0.54, 0.68, easeSnap) *
-      (1 - segment(progress, 0.72, 1, easeOut));
-    const settle = segment(progress, 0.72, 1, easeOut);
+      (1 - segment(progress, 0.42, 0.58, easeOut));
+    const surprise =
+      segment(progress, 0.5, 0.66, easeSnap) *
+      (1 - segment(progress, 0.7, 1, easeOut));
+    const pose = blendPose(sleep, awake, open);
 
     return {
-      faceX: shake * 14 - startled * 8,
-      faceY: 7 - startled * 7 + Math.abs(shake) * 3,
-      yaw: shake * 15 - startled * 8,
-      rotate: shake * -6 - startled * 3,
-      scale: mix(0.96, 1, awake) * mix(1, 1.08, startled) * mix(1.02, 1, settle),
-      eyeX: -startled * 2,
-      eyeY: startled * -2,
-      eyeScaleX: mix(1.07, 1, awake) * mix(1, 1.12, startled),
-      eyeScaleY: mix(0.075, 1, awake) * mix(1, 1.14, startled),
-      eyeOpacity: mix(0.76, 0.94, awake),
-      browLiftLeft: clamp(0.08 + startled * 0.98 + awake * 0.18),
-      browLiftRight: clamp(0.08 + startled * 0.98 + awake * 0.18),
-      browAngleLeft: -2 - startled * 7,
-      browAngleRight: 2 + startled * 7,
-      browYLeft: 2,
-      browYRight: 2,
-      glowOpacity: mix(0.1, 0.28, awake) + startled * 0.18,
-      glowScaleY: mix(0.2, 1, awake),
-      zOpacity: 1 - segment(progress, 0.14, 0.42, easeOut),
-      intensity: mix(0.74, 0.94, awake),
+      ...pose,
+      faceX: pose.faceX + shake * 14 - surprise * 6,
+      faceY: pose.faceY + Math.abs(shake) * 3 - surprise * 6,
+      yaw: pose.yaw + shake * 15 - surprise * 7,
+      rotate: pose.rotate + shake * -6 - surprise * 2,
+      scale: pose.scale * (1 + surprise * 0.08),
+      eyeX: pose.eyeX - surprise * 2,
+      eyeY: pose.eyeY - surprise * 2,
+      eyeScaleX: pose.eyeScaleX * (1 + surprise * 0.12),
+      eyeScaleY: pose.eyeScaleY * (1 + surprise * 0.14),
+      browLiftLeft: clamp(pose.browLiftLeft + surprise * 0.95),
+      browLiftRight: clamp(pose.browLiftRight + surprise * 0.95),
+      browAngleLeft: pose.browAngleLeft - surprise * 7,
+      browAngleRight: pose.browAngleRight + surprise * 7,
+      glowOpacity: pose.glowOpacity + surprise * 0.18,
+      zOpacity: sleep.zOpacity * (1 - segment(progress, 0.08, 0.34, easeOut)),
     };
+  }
+
+  if (variant === "fallAsleep") {
+    return blendPose(awake, sleep, segment(progress, 0.16, 0.82, easeOut));
+  }
+
+  if (variant === "lookInput") {
+    return blendPose(awake, input, segment(progress, 0.08, 0.7, easeOut));
   }
 
   if (variant === "input") {
     const blink = pulse(loop, 0.68, 0.055);
+    const breathe = Math.sin(loop * Math.PI * 2) * 0.7;
+
     return {
-      faceX: wave * 1.2,
-      faceY: 6 + wave2 * 0.8,
-      yaw: wave * 1.8,
-      rotate: wave * 0.35,
-      scale: 1,
-      eyeX: 0,
-      eyeY: 8,
-      eyeScaleX: 0.97,
-      eyeScaleY: 0.96 * mix(1, 0.12, blink),
-      eyeOpacity: 0.94 * mix(1, 0.38, blink),
-      browLiftLeft: 0.2 + wave * 0.04,
-      browLiftRight: 0.2 - wave * 0.04,
-      browAngleLeft: 2 + wave * 1.8,
-      browAngleRight: -2 + wave * 1.8,
-      browYLeft: 2,
-      browYRight: 2,
-      glowOpacity: 0.28,
-      glowScaleY: 1,
-      zOpacity: 0,
-      intensity: 0.94,
+      ...input,
+      faceY: input.faceY + breathe,
+      yaw: Math.sin(loop * Math.PI * 2) * 1.2,
+      rotate: Math.sin(loop * Math.PI * 2) * 0.25,
+      eyeScaleY: input.eyeScaleY * mix(1, 0.12, blink),
+      eyeOpacity: input.eyeOpacity * mix(1, 0.38, blink),
+    };
+  }
+
+  if (variant === "startle") {
+    const surprise =
+      segment(progress, 0.05, 0.22, easeSnap) *
+      (1 - segment(progress, 0.5, 1, easeOut));
+
+    return {
+      ...awake,
+      faceX: -surprise * 7,
+      faceY: -surprise * 8,
+      yaw: -surprise * 8,
+      rotate: -surprise * 3,
+      scale: 1 + surprise * 0.09,
+      eyeX: -surprise * 2,
+      eyeY: -surprise * 2,
+      eyeScaleX: awake.eyeScaleX * (1 + surprise * 0.14),
+      eyeScaleY: awake.eyeScaleY * (1 + surprise * 0.16),
+      browLiftLeft: clamp(awake.browLiftLeft + surprise * 0.95),
+      browLiftRight: clamp(awake.browLiftRight + surprise * 0.95),
+      browAngleLeft: awake.browAngleLeft - surprise * 9,
+      browAngleRight: awake.browAngleRight + surprise * 9,
+      glowOpacity: awake.glowOpacity + surprise * 0.2,
     };
   }
 
   if (variant === "send") {
-    const snap = segment(progress, 0, 0.22, easeSnap);
-    const release = segment(progress, 0.42, 1, easeOut);
-    const look = snap * (1 - release);
-    const blink = segment(progress, 0.48, 0.58, Easing.out(Easing.cubic)) *
-      (1 - segment(progress, 0.59, 0.78, easeOut));
+    const look =
+      segment(progress, 0.06, 0.22, easeSnap) *
+      (1 - segment(progress, 0.48, 0.86, easeOut));
+    const blink =
+      segment(progress, 0.5, 0.58, Easing.out(Easing.cubic)) *
+      (1 - segment(progress, 0.6, 0.78, easeOut));
 
     return {
-      faceX: look * 10,
-      faceY: look * 5,
-      yaw: look * 15,
-      rotate: look * 1.2,
-      scale: 1 + look * 0.03,
-      eyeX: look * 9,
-      eyeY: look * 6,
-      eyeScaleX: 0.96 - look * 0.06,
-      eyeScaleY: 1 * mix(1, 0.18, blink),
-      eyeOpacity: 0.94 * mix(1, 0.42, blink),
-      browLiftLeft: 0.16,
-      browLiftRight: 0.16 + look * 0.76,
-      browAngleLeft: 2 + look * 3,
-      browAngleRight: -2 - look * 10,
-      browYLeft: 2,
-      browYRight: 2,
-      glowOpacity: 0.3 + look * 0.14,
-      glowScaleY: 1,
-      zOpacity: 0,
-      intensity: 0.96,
+      ...input,
+      faceX: input.faceX + look * 10,
+      faceY: input.faceY + look * 5,
+      yaw: input.yaw + look * 15,
+      rotate: input.rotate + look * 1.2,
+      scale: input.scale + look * 0.03,
+      eyeX: input.eyeX + look * 9,
+      eyeY: input.eyeY + look * 6,
+      eyeScaleX: input.eyeScaleX - look * 0.06,
+      eyeScaleY: input.eyeScaleY * mix(1, 0.18, blink),
+      eyeOpacity: input.eyeOpacity * mix(1, 0.42, blink),
+      browLiftRight: input.browLiftRight + look * 0.76,
+      browAngleLeft: input.browAngleLeft + look * 3,
+      browAngleRight: input.browAngleRight - look * 10,
+      glowOpacity: input.glowOpacity + look * 0.14,
     };
   }
 
@@ -397,26 +502,18 @@ const getPose = (
   const blink = pulse(loop, 0.9, 0.045);
 
   return {
-    faceX: -lookLeft * 6 + lookRight * 6 + wave2 * 0.8,
-    faceY: wave * 1.2,
+    ...awake,
+    faceX: -lookLeft * 6 + lookRight * 6,
+    faceY: Math.sin(loop * Math.PI * 2) * 0.8,
     yaw: -lookLeft * 10 + lookRight * 10,
     rotate: -lookLeft * 0.5 + lookRight * 0.5,
-    scale: 1,
     eyeX: -lookLeft * 7 + lookRight * 7,
-    eyeY: 0,
-    eyeScaleX: 0.96,
-    eyeScaleY: 1 * mix(1, 0.08, blink),
-    eyeOpacity: 0.94 * mix(1, 0.32, blink),
-    browLiftLeft: 0.12 + lookLeft * 0.62,
-    browLiftRight: 0.12 + lookRight * 0.62,
-    browAngleLeft: 4 - lookLeft * 8 + lookRight * 3,
-    browAngleRight: -4 + lookRight * 8 - lookLeft * 3,
-    browYLeft: 0,
-    browYRight: 0,
-    glowOpacity: 0.28,
-    glowScaleY: 1,
-    zOpacity: 0,
-    intensity: 0.94,
+    eyeScaleY: awake.eyeScaleY * mix(1, 0.08, blink),
+    eyeOpacity: awake.eyeOpacity * mix(1, 0.32, blink),
+    browLiftLeft: awake.browLiftLeft + lookLeft * 0.62,
+    browLiftRight: awake.browLiftRight + lookRight * 0.62,
+    browAngleLeft: awake.browAngleLeft - lookLeft * 8 + lookRight * 3,
+    browAngleRight: awake.browAngleRight + lookRight * 8 - lookLeft * 3,
   };
 };
 
@@ -424,8 +521,12 @@ export const MascotClip: React.FC<MascotClipProps> = ({ variant }) => {
   const frame = useCurrentFrame();
   const { durationInFrames } = useVideoConfig();
   const progress = frame / Math.max(1, durationInFrames - 1);
-  const loop = (frame % durationInFrames) / durationInFrames;
+  const loop = progress;
   const pose = getPose(variant, progress, loop);
+  const isLoop = variant === "sleep" || variant === "awake" || variant === "input";
+  const ledFrame = isLoop
+    ? (1 - Math.cos(loop * Math.PI * 2)) * 36
+    : Math.sin(progress * Math.PI) * 36;
 
   return (
     <AbsoluteFill style={{ backgroundColor: "#000", overflow: "hidden" }}>
@@ -449,7 +550,7 @@ export const MascotClip: React.FC<MascotClipProps> = ({ variant }) => {
       >
         <Brow
           side="left"
-          frame={frame}
+          frame={ledFrame}
           lift={pose.browLiftLeft}
           angle={pose.browAngleLeft}
           y={pose.browYLeft}
@@ -458,7 +559,7 @@ export const MascotClip: React.FC<MascotClipProps> = ({ variant }) => {
         />
         <Brow
           side="right"
-          frame={frame}
+          frame={ledFrame}
           lift={pose.browLiftRight}
           angle={pose.browAngleRight}
           y={pose.browYRight}
@@ -479,7 +580,7 @@ export const MascotClip: React.FC<MascotClipProps> = ({ variant }) => {
         />
         <Eye
           eye={0}
-          frame={frame}
+          frame={ledFrame}
           scaleX={pose.eyeScaleX}
           scaleY={pose.eyeScaleY}
           x={pose.eyeX}
@@ -490,7 +591,7 @@ export const MascotClip: React.FC<MascotClipProps> = ({ variant }) => {
         />
         <Eye
           eye={1}
-          frame={frame}
+          frame={ledFrame}
           scaleX={pose.eyeScaleX}
           scaleY={pose.eyeScaleY}
           x={pose.eyeX}
@@ -499,7 +600,7 @@ export const MascotClip: React.FC<MascotClipProps> = ({ variant }) => {
           opacity={pose.eyeOpacity}
           intensity={pose.intensity}
         />
-        {pose.zOpacity > 0 ? <SleepZ frame={frame} progress={loop} /> : null}
+        {pose.zOpacity > 0 ? <SleepZ frame={ledFrame} progress={loop} /> : null}
       </div>
     </AbsoluteFill>
   );
