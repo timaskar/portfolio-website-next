@@ -123,6 +123,17 @@
         position: relative;
         width: 100%;
         height: 100%;
+        --track-yaw: 0deg;
+        --track-pitch: 0deg;
+        --track-x: 0px;
+        --track-y: 0px;
+        --track-eye-x: 0px;
+        --track-eye-y: 0px;
+        --track-skew: 0deg;
+        --track-brow-left-y: 0px;
+        --track-brow-right-y: 0px;
+        --track-brow-left-rot: 4deg;
+        --track-brow-right-rot: -4deg;
         transform-origin: 50% 58%;
         transition: transform 520ms var(--ease-out);
         will-change: transform;
@@ -234,10 +245,41 @@
 
       .chat-mascot[data-state="sleepy"] .chat-eye {
         opacity: 0.74;
-        transform: scaleY(0.38);
+        transform: scaleY(0.08);
         filter:
-          drop-shadow(0 0 5px rgba(242, 242, 238, 0.26))
-          drop-shadow(0 0 14px rgba(242, 242, 238, 0.1));
+          drop-shadow(0 0 5px rgba(242, 242, 238, 0.34))
+          drop-shadow(0 0 15px rgba(242, 242, 238, 0.12));
+      }
+
+      .chat-mascot[data-state="track"] .chat-face {
+        transform:
+          perspective(520px)
+          rotateY(var(--track-yaw))
+          rotateX(var(--track-pitch))
+          translate3d(var(--track-x), var(--track-y), 0);
+        transition-duration: 170ms;
+      }
+
+      .chat-mascot[data-state="track"] .chat-eye {
+        transform:
+          translate3d(var(--track-eye-x), var(--track-eye-y), 0)
+          skewY(var(--track-skew))
+          scaleX(0.96);
+        transition-duration: 170ms;
+      }
+
+      .chat-mascot[data-state="track"] .chat-brow-left {
+        transform:
+          translate3d(0, var(--track-brow-left-y), 0)
+          rotateZ(var(--track-brow-left-rot));
+        transition-duration: 170ms;
+      }
+
+      .chat-mascot[data-state="track"] .chat-brow-right {
+        transform:
+          translate3d(0, var(--track-brow-right-y), 0)
+          rotateZ(var(--track-brow-right-rot));
+        transition-duration: 170ms;
       }
 
       .chat-mascot[data-state="look-input"] .chat-face {
@@ -281,6 +323,48 @@
 
       .chat-mascot.is-blinking .chat-eye {
         animation: mascot-blink 260ms var(--ease-in);
+      }
+
+      .sleep-z {
+        position: absolute;
+        z-index: 4;
+        top: -21%;
+        right: 14%;
+        color: rgba(242, 242, 238, 0.9);
+        font-family: "IBM Plex Mono", "JetBrains Mono", SFMono-Regular, Consolas, monospace;
+        font-size: 11px;
+        font-weight: 800;
+        line-height: 1;
+        opacity: 0;
+        text-shadow:
+          0 0 7px rgba(242, 242, 238, 0.62),
+          0 0 18px rgba(242, 242, 238, 0.24);
+        transform: translate3d(0, 8px, 0) scale(0.82);
+        pointer-events: none;
+      }
+
+      .sleep-z-two {
+        top: -32%;
+        right: 6%;
+        font-size: 14px;
+      }
+
+      .sleep-z-three {
+        top: -43%;
+        right: -4%;
+        font-size: 17px;
+      }
+
+      .chat-mascot[data-state="sleepy"] .sleep-z {
+        animation: sleep-z 1.8s var(--ease-out) infinite;
+      }
+
+      .chat-mascot[data-state="sleepy"] .sleep-z-two {
+        animation-delay: 180ms;
+      }
+
+      .chat-mascot[data-state="sleepy"] .sleep-z-three {
+        animation-delay: 360ms;
       }
 
       .assistant-console {
@@ -1403,6 +1487,22 @@
         }
       }
 
+      @keyframes sleep-z {
+        0% {
+          opacity: 0;
+          transform: translate3d(0, 8px, 0) scale(0.82);
+        }
+        22%,
+        58% {
+          opacity: 0.88;
+          transform: translate3d(5px, -3px, 0) scale(1);
+        }
+        100% {
+          opacity: 0;
+          transform: translate3d(13px, -19px, 0) scale(1.08);
+        }
+      }
+
       @keyframes loader-video-exit {
         to {
           opacity: 0;
@@ -1638,6 +1738,9 @@
             <span class="chat-brow chat-brow-right" data-led-strip="brow"></span>
             <span class="chat-eye chat-eye-left" data-led-strip="eye"></span>
             <span class="chat-eye chat-eye-right" data-led-strip="eye"></span>
+            <span class="sleep-z sleep-z-one">Z</span>
+            <span class="sleep-z sleep-z-two">Z</span>
+            <span class="sleep-z sleep-z-three">Z</span>
           </span>
         </button>
         <div class="assistant-console" aria-label="AI portfolio chat">
@@ -1752,6 +1855,9 @@
       let mascotMode = "idle";
       let mascotIdleTimer;
       let mascotActionTimer;
+      let mascotTrackingTimer;
+      let pointerFrame;
+      let pointerTarget;
 
       const updateFollowupFade = () => {
         const maxScroll = followups.scrollWidth - followups.clientWidth;
@@ -1786,15 +1892,17 @@
       });
 
       const refreshLedGlyphs = () => {
+        const tick = Math.floor(performance.now() / 44);
+
         ledPixels.forEach((pixel, index) => {
-          if ((index + Date.now()) % 3 === 0 || Math.random() > 0.58) {
+          if ((index + tick) % 2 === 0 || Math.random() > 0.34) {
             pixel.textContent = randomGlyph();
           }
         });
       };
 
       if (!reduceMotion) {
-        window.setInterval(refreshLedGlyphs, 320);
+        window.setInterval(refreshLedGlyphs, 110);
       }
 
       const blinkMascot = () => {
@@ -1808,6 +1916,66 @@
 
       const setMascotState = (state) => {
         mascot.dataset.state = state;
+      };
+
+      const clampValue = (value, min, max) => Math.max(min, Math.min(max, value));
+
+      const applyPointerTracking = ({ x, y }) => {
+        if (reduceMotion || mascotMode === "action" || mascotMode === "input") {
+          return;
+        }
+
+        const rect = mascot.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        const dx = clampValue((x - centerX) / Math.max(220, window.innerWidth * 0.28), -1, 1);
+        const dy = clampValue((y - centerY) / Math.max(180, window.innerHeight * 0.26), -1, 1);
+        const nearby = Math.abs(dx) < 0.95 && Math.abs(dy) < 0.95;
+
+        if (!nearby) {
+          return;
+        }
+
+        mascotMode = "tracking";
+        window.clearTimeout(mascotIdleTimer);
+        window.clearTimeout(mascotTrackingTimer);
+        mascot.style.setProperty("--track-yaw", `${(dx * 15).toFixed(2)}deg`);
+        mascot.style.setProperty("--track-pitch", `${(-dy * 9).toFixed(2)}deg`);
+        mascot.style.setProperty("--track-x", `${(dx * 7).toFixed(2)}px`);
+        mascot.style.setProperty("--track-y", `${(dy * 5).toFixed(2)}px`);
+        mascot.style.setProperty("--track-eye-x", `${(dx * 8).toFixed(2)}px`);
+        mascot.style.setProperty("--track-eye-y", `${(dy * 7).toFixed(2)}px`);
+        mascot.style.setProperty("--track-skew", `${(dx * 2.6).toFixed(2)}deg`);
+        mascot.style.setProperty("--track-brow-left-y", `${(-Math.max(0, -dx) * 8 - Math.max(0, -dy) * 4).toFixed(2)}px`);
+        mascot.style.setProperty("--track-brow-right-y", `${(-Math.max(0, dx) * 8 - Math.max(0, -dy) * 4).toFixed(2)}px`);
+        mascot.style.setProperty("--track-brow-left-rot", `${(4 - dx * 6).toFixed(2)}deg`);
+        mascot.style.setProperty("--track-brow-right-rot", `${(-4 - dx * 6).toFixed(2)}deg`);
+        setMascotState("track");
+
+        mascotTrackingTimer = window.setTimeout(() => {
+          if (mascotMode === "tracking") {
+            mascotMode = "idle";
+            setMascotState("idle-center");
+            scheduleMascotIdle();
+          }
+        }, 2600);
+      };
+
+      const followPointer = (event) => {
+        if (event.pointerType && event.pointerType !== "mouse" && event.pointerType !== "pen") {
+          return;
+        }
+
+        pointerTarget = { x: event.clientX, y: event.clientY };
+
+        if (pointerFrame) {
+          return;
+        }
+
+        pointerFrame = window.requestAnimationFrame(() => {
+          pointerFrame = null;
+          applyPointerTracking(pointerTarget);
+        });
       };
 
       const restoreMascotMode = () => {
@@ -1841,6 +2009,7 @@
         mascotMode = "action";
         window.clearTimeout(mascotIdleTimer);
         window.clearTimeout(mascotActionTimer);
+        window.clearTimeout(mascotTrackingTimer);
         setMascotState(state);
         mascotActionTimer = window.setTimeout(restoreMascotMode, duration);
       };
@@ -1852,6 +2021,7 @@
 
         mascotMode = "input";
         window.clearTimeout(mascotIdleTimer);
+        window.clearTimeout(mascotTrackingTimer);
         setMascotState("look-input");
       };
 
@@ -1912,6 +2082,8 @@
       });
       sendButton.addEventListener("pointerdown", () => triggerMascot("look-send", 1300));
       sendButton.addEventListener("focus", () => triggerMascot("look-send", 900));
+      window.addEventListener("pointermove", followPointer, { passive: true });
+      window.addEventListener("mousemove", followPointer, { passive: true });
       followups.addEventListener("scroll", updateFollowupFade, { passive: true });
       window.addEventListener("resize", updateFollowupFade);
       window.addEventListener("load", updateFollowupFade);
