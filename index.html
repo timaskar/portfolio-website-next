@@ -520,8 +520,8 @@
         right: 0;
         bottom: calc(clamp(28px, 5vh, 54px) + 138px);
         z-index: 1;
-        width: min(760px, 100%);
-        max-width: min(760px, 100%);
+        width: min(560px, 100%);
+        max-width: min(560px, 100%);
         margin: 0 auto;
         padding: 0 0 30px;
         overflow-x: visible;
@@ -529,6 +529,21 @@
         overscroll-behavior: contain;
         pointer-events: auto;
         scrollbar-width: none;
+        -webkit-mask-image: linear-gradient(
+          180deg,
+          #000 0,
+          #000 calc(100% - 72px),
+          transparent 100%
+        );
+        mask-image: linear-gradient(
+          180deg,
+          #000 0,
+          #000 calc(100% - 72px),
+          transparent 100%
+        );
+      }
+
+      .assistant-console.has-user .thread.is-scrolled {
         -webkit-mask-image: linear-gradient(
           180deg,
           transparent 0,
@@ -1012,10 +1027,10 @@
         position: absolute;
         left: 0;
         right: 0;
-        bottom: calc(clamp(28px, 5vh, 54px) + 64px);
+        bottom: calc(clamp(28px, 5vh, 54px) + 62px);
         z-index: 3;
         order: 2;
-        margin: 0 auto 10px;
+        margin: 0 auto;
         pointer-events: auto;
       }
 
@@ -2635,6 +2650,14 @@
         });
       };
 
+      const updateThreadFade = () => {
+        const maxScroll = Math.max(0, thread.scrollHeight - thread.clientHeight);
+        const scrollTop = Math.round(thread.scrollTop);
+
+        thread.classList.toggle("is-scrollable", maxScroll > 1);
+        thread.classList.toggle("is-scrolled", scrollTop > 1);
+      };
+
       const scrollFollowups = (direction) => {
         const distance = Math.max(180, followups.clientWidth * 0.68);
 
@@ -2855,6 +2878,7 @@
         promptInput.value = "";
         window.requestAnimationFrame(() => {
           thread.scrollTop = 0;
+          updateThreadFade();
           updateFollowupFade();
         });
       };
@@ -2940,9 +2964,17 @@
         });
       });
       followups.addEventListener("scroll", updateFollowupFade, { passive: true });
-      window.addEventListener("resize", updateFollowupFade);
-      window.addEventListener("load", updateFollowupFade);
+      thread.addEventListener("scroll", updateThreadFade, { passive: true });
+      window.addEventListener("resize", () => {
+        updateFollowupFade();
+        updateThreadFade();
+      });
+      window.addEventListener("load", () => {
+        updateFollowupFade();
+        updateThreadFade();
+      });
       updateFollowupFade();
+      updateThreadFade();
       setMascotClip("sleep", { restart: false });
     </script>
   </body>
