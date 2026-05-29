@@ -397,27 +397,14 @@ const getPose = (
         { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: easeInOut },
       ) *
       (1 - segment(progress, 0.42, 0.58, easeOut));
-    const surprise =
-      segment(progress, 0.5, 0.66, easeSnap) *
-      (1 - segment(progress, 0.7, 1, easeOut));
     const pose = blendPose(sleep, awake, open);
 
     return {
       ...pose,
-      faceX: pose.faceX + shake * 14 - surprise * 6,
-      faceY: pose.faceY + Math.abs(shake) * 3 - surprise * 6,
-      yaw: pose.yaw + shake * 15 - surprise * 7,
-      rotate: pose.rotate + shake * -6 - surprise * 2,
-      scale: pose.scale * (1 + surprise * 0.08),
-      eyeX: pose.eyeX - surprise * 2,
-      eyeY: pose.eyeY - surprise * 2,
-      eyeScaleX: pose.eyeScaleX * (1 + surprise * 0.12),
-      eyeScaleY: pose.eyeScaleY * (1 + surprise * 0.14),
-      browLiftLeft: clamp(pose.browLiftLeft + surprise * 0.95),
-      browLiftRight: clamp(pose.browLiftRight + surprise * 0.95),
-      browAngleLeft: pose.browAngleLeft - surprise * 7,
-      browAngleRight: pose.browAngleRight + surprise * 7,
-      glowOpacity: pose.glowOpacity + surprise * 0.18,
+      faceX: pose.faceX + shake * 14,
+      faceY: pose.faceY + Math.abs(shake) * 3,
+      yaw: pose.yaw + shake * 15,
+      rotate: pose.rotate + shake * -6,
       zOpacity: sleep.zOpacity * (1 - segment(progress, 0.08, 0.34, easeOut)),
     };
   }

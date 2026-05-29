@@ -1821,7 +1821,7 @@
           <video
             class="mascot-video"
             id="mascot-video"
-            src="assets/mascot-sleep-loop.mp4?v=video-clips-3"
+            src="assets/mascot-sleep-loop.mp4?v=video-clips-4"
             autoplay
             muted
             loop
@@ -1940,35 +1940,35 @@
       const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       const mascotClips = {
         sleep: {
-          src: "assets/mascot-sleep-loop.mp4?v=video-clips-3",
+          src: "assets/mascot-sleep-loop.mp4?v=video-clips-4",
           loop: true,
         },
         awake: {
-          src: "assets/mascot-awake-loop.mp4?v=video-clips-3",
+          src: "assets/mascot-awake-loop.mp4?v=video-clips-4",
           loop: true,
         },
         wake: {
-          src: "assets/mascot-wake.mp4?v=video-clips-3",
+          src: "assets/mascot-wake.mp4?v=video-clips-4",
           loop: false,
         },
         lookInput: {
-          src: "assets/mascot-look-input.mp4?v=video-clips-3",
+          src: "assets/mascot-look-input.mp4?v=video-clips-4",
           loop: false,
         },
         input: {
-          src: "assets/mascot-input-loop.mp4?v=video-clips-3",
+          src: "assets/mascot-input-loop.mp4?v=video-clips-4",
           loop: true,
         },
         fallAsleep: {
-          src: "assets/mascot-fall-asleep.mp4?v=video-clips-3",
+          src: "assets/mascot-fall-asleep.mp4?v=video-clips-4",
           loop: false,
         },
         startle: {
-          src: "assets/mascot-startle.mp4?v=video-clips-3",
+          src: "assets/mascot-startle.mp4?v=video-clips-4",
           loop: false,
         },
         send: {
-          src: "assets/mascot-send.mp4?v=video-clips-3",
+          src: "assets/mascot-send.mp4?v=video-clips-4",
           loop: false,
         },
       };
@@ -2021,6 +2021,10 @@
       };
 
       const playMascotAction = (clipName, nextClip = "awake") => {
+        if (mascotActionActive && mascotMode === clipName) {
+          return;
+        }
+
         mascotActionActive = true;
         mascotReturnMode = nextClip;
         setMascotClip(clipName);
@@ -2145,7 +2149,13 @@
           return;
         }
 
-        playMascotAction("startle", document.activeElement === promptInput ? "input" : "awake");
+        if (mascotActionActive) {
+          return;
+        }
+
+        if (mascotMode === "awake" || mascotMode === "input") {
+          playMascotAction("startle", document.activeElement === promptInput ? "input" : "awake");
+        }
       });
       promptInput.addEventListener("focus", watchInput);
       promptInput.addEventListener("input", watchInput);
