@@ -113,10 +113,15 @@
         transform: translate3d(-50%, 10px, 0) scale(0.94);
         cursor: pointer;
         animation: mascot-hold-enter 520ms var(--ease-out) 5s forwards;
+        transition: top 520ms var(--ease-out), width 420ms var(--ease-out);
       }
 
       .mascot-hold:focus-visible {
         outline: 0;
+      }
+
+      .loader.is-chatting .mascot-hold {
+        top: clamp(76px, calc(24vh - 94px), 250px);
       }
 
       .mascot-video {
@@ -474,9 +479,29 @@
       .assistant-console.has-user {
         top: 0;
         bottom: 0;
+        width: min(760px, calc(100vw - 48px));
         transform: translate3d(-50%, 0, 0);
         animation: none;
         opacity: 1;
+        pointer-events: none;
+      }
+
+      .assistant-console.has-user::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        bottom: 0;
+        z-index: 2;
+        width: min(760px, calc(100vw - 24px));
+        height: 228px;
+        transform: translateX(-50%);
+        background: linear-gradient(
+          180deg,
+          transparent 0%,
+          rgba(0, 0, 0, 0.5) 34%,
+          rgba(0, 0, 0, 0.92) 76%,
+          #000 100%
+        );
         pointer-events: none;
       }
 
@@ -490,11 +515,47 @@
 
       .assistant-console.has-user .thread {
         position: absolute;
-        top: calc(50% - 42px);
+        top: clamp(206px, calc(50% - 224px), 410px);
         left: 0;
         right: 0;
-        margin-bottom: 12px;
+        bottom: calc(clamp(28px, 5vh, 54px) + 138px);
+        z-index: 1;
+        width: min(760px, 100%);
+        max-width: min(760px, 100%);
+        margin: 0 auto;
+        padding: 0 0 30px;
+        overflow-x: visible;
+        overflow-y: auto;
+        overscroll-behavior: contain;
         pointer-events: auto;
+        scrollbar-width: none;
+        -webkit-mask-image: linear-gradient(
+          180deg,
+          transparent 0,
+          #000 22px,
+          #000 calc(100% - 72px),
+          transparent 100%
+        );
+        mask-image: linear-gradient(
+          180deg,
+          transparent 0,
+          #000 22px,
+          #000 calc(100% - 72px),
+          transparent 100%
+        );
+      }
+
+      .assistant-console.has-user .thread::-webkit-scrollbar {
+        display: none;
+      }
+
+      .assistant-console.has-user .message-row {
+        width: 100%;
+        min-width: 0;
+      }
+
+      .assistant-console.has-user .message-row.user {
+        justify-content: flex-end;
       }
 
       .message-row {
@@ -568,7 +629,9 @@
       }
 
       .assistant-console.has-user .agent-bubble {
-        max-width: min(560px, 100%);
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
         border: 0;
         border-radius: 0;
         padding: 0 4px;
@@ -590,6 +653,7 @@
       }
 
       .assistant-console.has-user .user-bubble {
+        max-width: min(420px, 82%);
         border-radius: 22px;
         border-bottom-right-radius: 10px;
         padding: 7px 12px 8px;
@@ -633,6 +697,300 @@
         line-height: 1.45;
       }
 
+      .case-preview-rail {
+        display: flex;
+        gap: 10px;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        margin-top: 14px;
+        padding: 1px 3px 8px 0;
+        overflow-x: auto;
+        overscroll-behavior-inline: contain;
+        scrollbar-width: none;
+        -webkit-mask-image: linear-gradient(
+          90deg,
+          #000 0,
+          #000 calc(100% - 26px),
+          transparent 100%
+        );
+        mask-image: linear-gradient(
+          90deg,
+          #000 0,
+          #000 calc(100% - 26px),
+          transparent 100%
+        );
+      }
+
+      .case-preview-rail[hidden] {
+        display: none;
+      }
+
+      .case-preview-rail::-webkit-scrollbar {
+        display: none;
+      }
+
+      .case-card {
+        --case-accent: var(--signal-active);
+        --case-soft: rgba(159, 255, 215, 0.14);
+        --case-border: rgba(159, 255, 215, 0.44);
+        --case-glow: rgba(159, 255, 215, 0.22);
+        position: relative;
+        flex: 0 0 208px;
+        overflow: hidden;
+        display: grid;
+        grid-template-rows: 104px minmax(128px, auto);
+        min-height: 236px;
+        border: 1px solid rgba(242, 242, 238, 0.13);
+        border-radius: 6px;
+        padding: 0;
+        background: rgba(12, 12, 12, 0.94);
+        color: var(--text-primary);
+        text-align: left;
+        cursor: pointer;
+        box-shadow: inset 0 1px 0 rgba(242, 242, 238, 0.05);
+        animation: case-card-enter 360ms var(--ease-out) both;
+        animation-delay: calc(var(--card-index, 0) * 42ms);
+        transition:
+          border-color 160ms var(--ease-out),
+          background 160ms var(--ease-out),
+          transform 160ms var(--ease-out),
+          box-shadow 160ms var(--ease-out);
+      }
+
+      .case-card:hover,
+      .case-card:focus-visible,
+      .case-card.is-active {
+        border-color: rgba(159, 255, 215, 0.42);
+        background: rgba(18, 22, 20, 0.96);
+        outline: none;
+        transform: translateY(-2px);
+        box-shadow:
+          inset 0 1px 0 rgba(242, 242, 238, 0.07),
+          0 0 0 1px rgba(159, 255, 215, 0.04),
+          0 18px 36px rgba(0, 0, 0, 0.28);
+      }
+
+      .case-card:focus-visible {
+        box-shadow:
+          0 0 0 2px rgba(159, 255, 215, 0.32),
+          0 18px 36px rgba(0, 0, 0, 0.28);
+      }
+
+      .case-preview-art {
+        position: relative;
+        overflow: hidden;
+        min-height: 104px;
+        border-bottom: 1px solid rgba(242, 242, 238, 0.1);
+        background:
+          linear-gradient(135deg, rgba(242, 242, 238, 0.16), transparent 28%),
+          repeating-linear-gradient(
+            90deg,
+            rgba(242, 242, 238, 0.08) 0 1px,
+            transparent 1px 12px
+          ),
+          repeating-linear-gradient(
+            0deg,
+            rgba(242, 242, 238, 0.055) 0 1px,
+            transparent 1px 12px
+          ),
+          #101010;
+      }
+
+      .case-preview-art::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(circle at 18% 28%, var(--case-accent) 0 2px, transparent 2.5px),
+          radial-gradient(circle at 33% 54%, rgba(242, 242, 238, 0.74) 0 2px, transparent 2.5px),
+          radial-gradient(circle at 52% 38%, rgba(242, 242, 238, 0.34) 0 2px, transparent 2.5px),
+          radial-gradient(circle at 70% 66%, rgba(242, 242, 238, 0.54) 0 2px, transparent 2.5px),
+          radial-gradient(circle at 86% 30%, rgba(242, 242, 238, 0.26) 0 2px, transparent 2.5px);
+        opacity: 0.86;
+      }
+
+      .case-preview-art::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.42)),
+          repeating-linear-gradient(
+            0deg,
+            transparent 0 5px,
+            rgba(0, 0, 0, 0.24) 5px 6px
+          );
+        pointer-events: none;
+      }
+
+      .case-card:hover .case-preview-art::before,
+      .case-card:focus-visible .case-preview-art::before,
+      .case-card.is-active .case-preview-art::before {
+        opacity: 1;
+      }
+
+      .case-card[data-variant="systems"] {
+        --case-accent: #9fffd7;
+        --case-soft: rgba(159, 255, 215, 0.14);
+        --case-border: rgba(159, 255, 215, 0.44);
+        --case-glow: rgba(159, 255, 215, 0.22);
+      }
+
+      .case-card[data-variant="growth"] {
+        --case-accent: #e6d06c;
+        --case-soft: rgba(230, 208, 108, 0.13);
+        --case-border: rgba(230, 208, 108, 0.38);
+        --case-glow: rgba(230, 208, 108, 0.18);
+      }
+
+      .case-card[data-variant="fintech"] {
+        --case-accent: #d8d8d0;
+        --case-soft: rgba(216, 216, 208, 0.13);
+        --case-border: rgba(216, 216, 208, 0.34);
+        --case-glow: rgba(216, 216, 208, 0.16);
+      }
+
+      .case-card[data-variant="ai"] {
+        --case-accent: #4fd6b0;
+        --case-soft: rgba(79, 214, 176, 0.14);
+        --case-border: rgba(79, 214, 176, 0.42);
+        --case-glow: rgba(79, 214, 176, 0.2);
+      }
+
+      .case-art-grid,
+      .case-art-bars,
+      .case-art-path {
+        position: absolute;
+        z-index: 1;
+      }
+
+      .case-art-grid {
+        inset: 18px 18px auto;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px;
+      }
+
+      .case-art-cell {
+        height: 18px;
+        border: 1px solid rgba(242, 242, 238, 0.14);
+        background: rgba(242, 242, 238, 0.035);
+      }
+
+      .case-art-cell:nth-child(2),
+      .case-art-cell:nth-child(7) {
+        border-color: var(--case-border);
+        background: var(--case-soft);
+        box-shadow: 0 0 16px var(--case-glow);
+      }
+
+      .case-art-bars {
+        left: 18px;
+        right: 18px;
+        bottom: 17px;
+        display: flex;
+        align-items: end;
+        gap: 5px;
+        height: 42px;
+      }
+
+      .case-art-bar {
+        flex: 1;
+        min-width: 0;
+        height: var(--bar-height, 50%);
+        background: rgba(242, 242, 238, 0.12);
+      }
+
+      .case-art-bar:nth-child(3),
+      .case-art-bar:nth-child(6) {
+        background: var(--case-accent);
+        box-shadow: 0 0 14px var(--case-glow);
+      }
+
+      .case-art-path {
+        left: 18px;
+        right: 18px;
+        top: 30px;
+        height: 34px;
+        border-top: 1px solid rgba(242, 242, 238, 0.18);
+        border-right: 1px solid rgba(242, 242, 238, 0.14);
+        transform: skewX(-22deg);
+      }
+
+      .case-art-path::before,
+      .case-art-path::after {
+        content: "";
+        position: absolute;
+        width: 7px;
+        height: 7px;
+        background: var(--case-accent);
+        box-shadow: 0 0 16px var(--case-glow);
+      }
+
+      .case-art-path::before {
+        left: 12px;
+        top: -4px;
+      }
+
+      .case-art-path::after {
+        right: 18px;
+        bottom: -4px;
+      }
+
+      .case-card-body {
+        display: grid;
+        align-content: start;
+        min-width: 0;
+        padding: 13px 14px 14px;
+      }
+
+      .case-card-source {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        min-width: 0;
+        color: rgba(242, 242, 238, 0.78);
+        font-size: 12px;
+        font-weight: 650;
+        line-height: 1.2;
+      }
+
+      .case-card-source::before {
+        content: "";
+        flex: 0 0 auto;
+        width: 8px;
+        height: 8px;
+        border: 1px solid var(--case-border);
+        background: var(--case-soft);
+        box-shadow: 0 0 14px var(--case-glow);
+      }
+
+      .case-card-title {
+        display: -webkit-box;
+        min-height: 4.05em;
+        margin: 9px 0 0;
+        overflow: hidden;
+        color: var(--text-primary);
+        font-size: 16px;
+        font-weight: 650;
+        letter-spacing: 0;
+        line-height: 1.35;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 3;
+      }
+
+      .case-card-meta {
+        margin-top: 16px;
+        color: var(--text-muted);
+        font-family: "IBM Plex Mono", "JetBrains Mono", SFMono-Regular, Consolas, monospace;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        line-height: 1.25;
+        text-transform: uppercase;
+      }
+
       .user-message {
         margin: 0;
         font-size: 14px;
@@ -655,6 +1013,7 @@
         left: 0;
         right: 0;
         bottom: calc(clamp(28px, 5vh, 54px) + 64px);
+        z-index: 3;
         order: 2;
         margin: 0 auto 10px;
         pointer-events: auto;
@@ -883,6 +1242,7 @@
         left: 0;
         right: 0;
         bottom: clamp(28px, 5vh, 54px);
+        z-index: 3;
         order: 3;
         pointer-events: auto;
       }
@@ -1668,6 +2028,18 @@
         }
       }
 
+      @keyframes case-card-enter {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
       @keyframes sleep-z {
         0% {
           opacity: 0;
@@ -1760,11 +2132,31 @@
           width: min(190px, 48vw);
         }
 
+        .loader.is-chatting .mascot-hold {
+          top: clamp(156px, calc(26vh - 24px), 210px);
+        }
+
         .assistant-console {
           --console-y-start: 18px;
           --console-y-end: 0px;
           top: clamp(388px, 47vh, 416px);
           width: calc(100vw - 32px);
+        }
+
+        .assistant-console.has-user {
+          width: calc(100vw - 32px);
+        }
+
+        .assistant-console.has-user::after {
+          width: calc(100vw - 16px);
+          height: 318px;
+          background: linear-gradient(
+            180deg,
+            transparent 0%,
+            rgba(0, 0, 0, 0.46) 28%,
+            rgba(0, 0, 0, 0.9) 70%,
+            #000 100%
+          );
         }
 
         .thread {
@@ -1773,7 +2165,12 @@
         }
 
         .assistant-console.has-user .thread {
-          margin-bottom: 10px;
+          top: clamp(328px, calc(44vh + 8px), 392px);
+          bottom: calc(clamp(28px, 5vh, 54px) + 246px);
+          width: 100%;
+          max-width: 100%;
+          margin: 0 auto;
+          padding-bottom: 34px;
         }
 
         .message-bubble {
@@ -1803,6 +2200,64 @@
         .assistant-console.has-user .agent-message {
           font-size: 16px;
           line-height: 1.3;
+        }
+
+        .case-preview-rail {
+          gap: 9px;
+          margin-top: 12px;
+          padding-bottom: 7px;
+        }
+
+        .case-card {
+          flex-basis: min(72vw, 218px);
+          grid-template-rows: 86px minmax(112px, auto);
+          min-height: 210px;
+        }
+
+        .case-preview-art {
+          min-height: 86px;
+        }
+
+        .case-art-grid {
+          inset: 15px 16px auto;
+          gap: 5px;
+        }
+
+        .case-art-cell {
+          height: 16px;
+        }
+
+        .case-art-bars {
+          left: 16px;
+          right: 16px;
+          bottom: 14px;
+          height: 34px;
+        }
+
+        .case-art-path {
+          left: 16px;
+          right: 16px;
+          top: 25px;
+          height: 30px;
+        }
+
+        .case-card-body {
+          padding: 11px 12px 12px;
+        }
+
+        .case-card-source {
+          font-size: 11px;
+        }
+
+        .case-card-title {
+          min-height: 3.9em;
+          font-size: 14px;
+          line-height: 1.3;
+        }
+
+        .case-card-meta {
+          margin-top: 12px;
+          font-size: 10px;
         }
 
         .user-message {
@@ -1948,6 +2403,12 @@
                 <p class="agent-message" id="assistant-message">
                   Ask me about Tim
                 </p>
+                <div
+                  class="case-preview-rail"
+                  id="case-preview-rail"
+                  aria-label="Selected case previews"
+                  hidden
+                ></div>
               </div>
             </div>
           </div>
@@ -1978,6 +2439,7 @@
                 type="button"
                 data-prompt="Show me Tim's work."
                 data-response="Start with selected case studies: platform systems, gaming growth, fintech distribution, and AI-enabled design workflows."
+                data-enrichment="cases"
               >
                 <span class="followup-text">See work</span>
                 <span class="followup-arrow" aria-hidden="true">→</span>
@@ -2053,6 +2515,9 @@
     <script>
       const assistantMessage = document.querySelector("#assistant-message");
       const assistantConsole = document.querySelector(".assistant-console");
+      const loader = document.querySelector(".loader");
+      const thread = document.querySelector(".thread");
+      const casePreviewRail = document.querySelector("#case-preview-rail");
       const userMessage = document.querySelector("#user-message");
       const userMessageRow = document.querySelector("#user-message-row");
       const promptInput = document.querySelector("#portfolio-prompt");
@@ -2103,6 +2568,51 @@
       let mascotReturnMode = "sleep";
       let mascotActionActive = false;
       let mascotIdleTimer;
+      const caseStudies = [
+        {
+          id: "systems",
+          source: "Case 01",
+          title: "Platform systems for faster product launches",
+          meta: "Systems / 2024",
+          variant: "systems",
+          bars: [42, 58, 82, 46, 64, 90],
+          detail:
+            "Platform systems case: reusable interaction patterns, tighter design-engineering handoff, and cleaner launch decisions across complex product surfaces.",
+        },
+        {
+          id: "growth",
+          source: "Case 02",
+          title: "Gaming growth loops from onboarding to live ops",
+          meta: "Growth / 2023",
+          variant: "growth",
+          bars: [34, 48, 68, 76, 58, 86],
+          detail:
+            "Gaming growth case: activation, retention loops, and live-ops UX shaped around fast experiments and readable player signals.",
+        },
+        {
+          id: "fintech",
+          source: "Case 03",
+          title: "Fintech distribution path with clearer conversion",
+          meta: "Fintech / 2024",
+          variant: "fintech",
+          bars: [52, 36, 62, 74, 80, 66],
+          detail:
+            "Fintech distribution case: acquisition and product education flows made sharper, lower-friction, and easier to evaluate with business metrics.",
+        },
+        {
+          id: "ai",
+          source: "Case 04",
+          title: "AI-enabled design workflow from brief to prototype",
+          meta: "AI workflow / 2025",
+          variant: "ai",
+          bars: [38, 54, 44, 72, 88, 78],
+          detail:
+            "AI workflow case: a practical design pipeline that turns fuzzy briefs into structured exploration, prototype states, and implementation-ready decisions.",
+        },
+      ];
+
+      const caseIntentPattern =
+        /(case|cases|work|portfolio|project|projects|кей|кейсы|работ|портфолио|проект)/i;
 
       const updateFollowupFade = () => {
         const maxScroll = Math.max(0, followups.scrollWidth - followups.clientWidth);
@@ -2133,6 +2643,79 @@
           behavior: reduceMotion ? "auto" : "smooth",
         });
         window.setTimeout(updateFollowupFade, reduceMotion ? 0 : 260);
+      };
+
+      const renderCaseArt = (caseStudy) => {
+        const bars = caseStudy.bars
+          .map(
+            (height) =>
+              `<span class="case-art-bar" style="--bar-height: ${height}%"></span>`,
+          )
+          .join("");
+
+        if (caseStudy.variant === "systems") {
+          return `
+            <span class="case-art-grid" aria-hidden="true">
+              ${Array.from({ length: 8 }, () => '<span class="case-art-cell"></span>').join("")}
+            </span>
+          `;
+        }
+
+        if (caseStudy.variant === "fintech") {
+          return '<span class="case-art-path" aria-hidden="true"></span>';
+        }
+
+        return `<span class="case-art-bars" aria-hidden="true">${bars}</span>`;
+      };
+
+      const renderCaseCard = (caseStudy, index, activeCaseId = "") => `
+        <button
+          class="case-card${caseStudy.id === activeCaseId ? " is-active" : ""}"
+          type="button"
+          data-case-id="${caseStudy.id}"
+          data-variant="${caseStudy.variant}"
+          style="--card-index: ${index}"
+          aria-label="${caseStudy.source}: ${caseStudy.title}"
+        >
+          <span class="case-preview-art" data-variant="${caseStudy.variant}" aria-hidden="true">
+            ${renderCaseArt(caseStudy)}
+          </span>
+          <span class="case-card-body">
+            <span class="case-card-source">${caseStudy.source}</span>
+            <span class="case-card-title">${caseStudy.title}</span>
+            <span class="case-card-meta">${caseStudy.meta}</span>
+          </span>
+        </button>
+      `;
+
+      const renderCaseCards = (activeCaseId = "") => {
+        casePreviewRail.innerHTML = caseStudies
+          .map((caseStudy, index) => renderCaseCard(caseStudy, index, activeCaseId))
+          .join("");
+
+        casePreviewRail.hidden = false;
+        assistantConsole.classList.add("has-enrichment");
+      };
+
+      const hideCaseCards = () => {
+        casePreviewRail.hidden = true;
+        casePreviewRail.innerHTML = "";
+        assistantConsole.classList.remove("has-enrichment");
+      };
+
+      const getExchangeForPrompt = (prompt) => {
+        if (caseIntentPattern.test(prompt)) {
+          return {
+            response:
+              "Start with selected case studies: platform systems, gaming growth, fintech distribution, and AI-enabled design workflows.",
+            enrichment: "cases",
+          };
+        }
+
+        return {
+          response: `I'll route this as a portfolio brief: ${prompt}`,
+          enrichment: "",
+        };
       };
 
       const setMascotClip = (clipName, options = {}) => {
@@ -2256,21 +2839,54 @@
         setMascotClip("awake", { restart: false });
       };
 
-      const showExchange = (prompt, response) => {
+      const showExchange = (prompt, response, options = {}) => {
+        loader.classList.add("is-chatting");
         assistantConsole.classList.add("has-user");
         userMessage.textContent = prompt;
         userMessageRow.hidden = false;
         assistantMessage.textContent = response;
+
+        if (options.enrichment === "cases") {
+          renderCaseCards(options.activeCaseId);
+        } else {
+          hideCaseCards();
+        }
+
         promptInput.value = "";
-        window.requestAnimationFrame(updateFollowupFade);
+        window.requestAnimationFrame(() => {
+          thread.scrollTop = 0;
+          updateFollowupFade();
+        });
       };
+
+      casePreviewRail.addEventListener("click", (event) => {
+        const card = event.target.closest(".case-card");
+
+        if (!card) {
+          return;
+        }
+
+        const caseStudy = caseStudies.find((item) => item.id === card.dataset.caseId);
+
+        if (!caseStudy) {
+          return;
+        }
+
+        showExchange(caseStudy.title, caseStudy.detail, {
+          enrichment: "cases",
+          activeCaseId: caseStudy.id,
+        });
+        playMascotAction("send", "input");
+      });
 
       promptButtons.forEach((button) => {
         button.addEventListener("click", () => {
           promptButtons.forEach((item) => item.classList.remove("is-active"));
           button.classList.add("is-active");
           promptInput.value = button.dataset.prompt;
-          showExchange(button.dataset.prompt, button.dataset.response);
+          showExchange(button.dataset.prompt, button.dataset.response, {
+            enrichment: button.dataset.enrichment,
+          });
           button.classList.add("is-used");
           window.requestAnimationFrame(updateFollowupFade);
           playMascotAction("send", "input");
@@ -2289,7 +2905,8 @@
 
         playMascotAction("send", "input");
         promptButtons.forEach((item) => item.classList.remove("is-active"));
-        showExchange(prompt, `I'll route this as a portfolio brief: ${prompt}`);
+        const exchange = getExchangeForPrompt(prompt);
+        showExchange(prompt, exchange.response, { enrichment: exchange.enrichment });
       });
 
       mascot.addEventListener("click", () => {
