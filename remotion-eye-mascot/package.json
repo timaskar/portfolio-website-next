@@ -6,7 +6,12 @@
     "studio": "remotion studio",
     "still": "remotion still EyeMascot --frame=126 --scale=0.5 out/eye-mascot-warning-frame.png",
     "render:webm": "remotion render EyeMascot out/eye-mascot-transparent.webm --image-format=png --pixel-format=yuva420p --codec=vp9",
-    "render:loader": "remotion render EyeMascot ../assets/loader-intro.mp4 --codec=h264 --pixel-format=yuv420p --crf=18"
+    "render:loader": "remotion render EyeMascot ../assets/loader-intro.mp4 --codec=h264 --pixel-format=yuv420p --crf=18",
+    "render:mascot:sleep": "remotion render MascotSleepLoop ../assets/mascot-sleep-loop.mp4 --codec=h264 --pixel-format=yuv420p --crf=20",
+    "render:mascot:awake": "remotion render MascotAwakeLoop ../assets/mascot-awake-loop.mp4 --codec=h264 --pixel-format=yuv420p --crf=20",
+    "render:mascot:wake": "remotion render MascotWake ../assets/mascot-wake.mp4 --codec=h264 --pixel-format=yuv420p --crf=20",
+    "render:mascot:input": "remotion render MascotInputLoop ../assets/mascot-input-loop.mp4 --codec=h264 --pixel-format=yuv420p --crf=20",
+    "render:mascot:send": "remotion render MascotSend ../assets/mascot-send.mp4 --codec=h264 --pixel-format=yuv420p --crf=20"
   },
   "dependencies": {
     "@remotion/cli": "4.0.468",

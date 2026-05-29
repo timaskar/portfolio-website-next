@@ -101,11 +101,11 @@
         position: absolute;
         left: 50%;
         top: calc(50% - 212px);
-        z-index: 5;
+        z-index: 3;
         display: grid;
         place-items: center;
-        width: min(220px, 24vw);
-        aspect-ratio: 284 / 162;
+        width: min(238px, 27vw);
+        aspect-ratio: 512 / 320;
         border: 0;
         padding: 0;
         background: transparent;
@@ -117,6 +117,35 @@
 
       .mascot-hold:focus-visible {
         outline: 0;
+      }
+
+      .mascot-video {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        display: block;
+        width: 200%;
+        height: 200%;
+        object-fit: contain;
+        background: #000;
+        mix-blend-mode: screen;
+        -webkit-mask-image: radial-gradient(
+          ellipse 44% 38% at 50% 50%,
+          #000 0,
+          #000 48%,
+          rgba(0, 0, 0, 0.58) 63%,
+          transparent 80%
+        );
+        mask-image: radial-gradient(
+          ellipse 44% 38% at 50% 50%,
+          #000 0,
+          #000 48%,
+          rgba(0, 0, 0, 0.58) 63%,
+          transparent 80%
+        );
+        pointer-events: none;
+        filter: drop-shadow(0 0 28px rgba(242, 242, 238, 0.08));
+        transform: translate(-50%, -50%);
       }
 
       .chat-mascot {
@@ -1786,18 +1815,20 @@
         <button
           class="mascot-hold chat-mascot"
           type="button"
-          data-state="idle-center"
+          data-state="sleep"
           aria-label="Wake Tim's portfolio assistant"
         >
-          <span class="chat-face" aria-hidden="true">
-            <span class="chat-brow chat-brow-left" data-led-strip="brow"></span>
-            <span class="chat-brow chat-brow-right" data-led-strip="brow"></span>
-            <span class="chat-eye chat-eye-left" data-led-strip="eye"></span>
-            <span class="chat-eye chat-eye-right" data-led-strip="eye"></span>
-            <span class="sleep-z sleep-z-one">Z</span>
-            <span class="sleep-z sleep-z-two">Z</span>
-            <span class="sleep-z sleep-z-three">Z</span>
-          </span>
+          <video
+            class="mascot-video"
+            id="mascot-video"
+            src="assets/mascot-sleep-loop.mp4?v=video-clips-2"
+            autoplay
+            muted
+            loop
+            playsinline
+            preload="auto"
+            aria-hidden="true"
+          ></video>
         </button>
         <div class="assistant-console" aria-label="AI portfolio chat">
           <div class="thread" aria-live="polite">
@@ -1905,16 +1936,34 @@
       const composer = document.querySelector(".composer");
       const sendButton = document.querySelector(".send-button");
       const mascot = document.querySelector(".chat-mascot");
+      const mascotVideo = document.querySelector("#mascot-video");
       const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      const ledGlyphs = ["0", "1"];
-      const ledPixels = [];
-      let mascotMode = "idle";
+      const mascotClips = {
+        sleep: {
+          src: "assets/mascot-sleep-loop.mp4?v=video-clips-2",
+          loop: true,
+        },
+        awake: {
+          src: "assets/mascot-awake-loop.mp4?v=video-clips-2",
+          loop: true,
+        },
+        wake: {
+          src: "assets/mascot-wake.mp4?v=video-clips-2",
+          loop: false,
+        },
+        input: {
+          src: "assets/mascot-input-loop.mp4?v=video-clips-2",
+          loop: true,
+        },
+        send: {
+          src: "assets/mascot-send.mp4?v=video-clips-2",
+          loop: false,
+        },
+      };
+      let mascotMode = "sleep";
+      let mascotReturnMode = "sleep";
+      let mascotActionActive = false;
       let mascotIdleTimer;
-      let mascotActionTimer;
-      let mascotTrackingTimer;
-      let pointerFrame;
-      let pointerTarget;
-      let ledAnimationTimer;
 
       const updateFollowupFade = () => {
         const maxScroll = followups.scrollWidth - followups.clientWidth;
@@ -1925,221 +1974,103 @@
         followups.classList.toggle("is-at-end", maxScroll <= 1 || scrollLeft >= maxScroll - 1);
       };
 
-      const randomGlyph = () => ledGlyphs[Math.floor(Math.random() * ledGlyphs.length)];
+      const setMascotClip = (clipName, options = {}) => {
+        const clip = mascotClips[clipName];
 
-      document.querySelectorAll("[data-led-strip]").forEach((strip) => {
-        const isEye = strip.dataset.ledStrip === "eye";
-        const count = isEye ? 60 : 24;
-
-        for (let index = 0; index < count; index += 1) {
-          const pixel = document.createElement("span");
-          const column = isEye ? index % 5 : index % 8;
-          const row = isEye ? Math.floor(index / 5) : Math.floor(index / 8);
-          const rowCenter = isEye ? 5.5 : 1;
-          const colCenter = isEye ? 2 : 3.5;
-          const centerFalloff = Math.abs(column - colCenter) * 0.04 + Math.abs(row - rowCenter) * 0.012;
-          const opacity = Math.max(0.48, 0.9 - centerFalloff - Math.random() * 0.1);
-
-          pixel.className = "chat-led";
-          pixel.style.setProperty("--o", opacity.toFixed(2));
-          pixel.textContent = randomGlyph();
-          strip.append(pixel);
-          ledPixels.push(pixel);
-        }
-      });
-
-      const refreshLedGlyphs = (time) => {
-        const tick = Math.floor(time / 20);
-
-        ledPixels.forEach((pixel, index) => {
-          if ((index + tick) % 3 === 0 || Math.random() > 0.84) {
-            pixel.textContent = pixel.textContent === "1" ? "0" : "1";
-            pixel.style.opacity = (0.84 + Math.random() * 0.16).toFixed(2);
-          }
-        });
-      };
-
-      const blinkMascot = () => {
-        if (reduceMotion) {
+        if (!clip) {
           return;
         }
 
-        mascot.classList.add("is-blinking");
-        window.setTimeout(() => mascot.classList.remove("is-blinking"), 280);
-      };
-
-      const setMascotState = (state) => {
-        mascot.dataset.state = state;
-      };
-
-      const clampValue = (value, min, max) => Math.max(min, Math.min(max, value));
-
-      const applyPointerTracking = ({ x, y }, options = {}) => {
-        if (reduceMotion || mascotMode === "action" || mascotMode === "input") {
-          return;
-        }
-
-        pointerTarget = { x, y };
-        const { force = false, hold = 2600 } = options;
-        const rect = mascot.getBoundingClientRect();
-        const centerX = rect.left + rect.width / 2;
-        const centerY = rect.top + rect.height / 2;
-        const dx = clampValue((x - centerX) / Math.max(220, window.innerWidth * 0.28), -1, 1);
-        const dy = clampValue((y - centerY) / Math.max(180, window.innerHeight * 0.26), -1, 1);
-        const localX = (x - rect.left) / rect.width;
-        const localY = (y - rect.top) / rect.height;
-        const nearby = Math.abs(dx) < 0.95 && Math.abs(dy) < 0.95;
-        const onForehead =
-          localX > 0.18 &&
-          localX < 0.82 &&
-          localY > -0.24 &&
-          localY < 0.26;
-
-        if (!force && !nearby) {
-          return;
-        }
-
-        mascotMode = "tracking";
-        window.clearTimeout(mascotIdleTimer);
-        window.clearTimeout(mascotTrackingTimer);
-        mascot.style.setProperty("--track-eye-scale-x", onForehead ? "1.04" : "0.96");
-        mascot.style.setProperty("--track-eye-scale-y", onForehead ? "0.36" : "1");
-        mascot.style.setProperty("--track-yaw", `${(dx * 15).toFixed(2)}deg`);
-        mascot.style.setProperty("--track-pitch", `${(-dy * 9).toFixed(2)}deg`);
-        mascot.style.setProperty("--track-x", `${(dx * 7).toFixed(2)}px`);
-        mascot.style.setProperty("--track-y", `${(dy * 5).toFixed(2)}px`);
-        mascot.style.setProperty("--track-eye-x", `${(dx * 8).toFixed(2)}px`);
-        mascot.style.setProperty("--track-eye-y", `${(dy * 7).toFixed(2)}px`);
-        mascot.style.setProperty("--track-skew", `${(dx * 2.6).toFixed(2)}deg`);
-        mascot.style.setProperty("--track-brow-left-y", `${(-Math.max(0, -dx) * 8 - Math.max(0, -dy) * 4).toFixed(2)}px`);
-        mascot.style.setProperty("--track-brow-right-y", `${(-Math.max(0, dx) * 8 - Math.max(0, -dy) * 4).toFixed(2)}px`);
-        mascot.style.setProperty("--track-brow-left-rot", `${(4 - dx * 6).toFixed(2)}deg`);
-        mascot.style.setProperty("--track-brow-right-rot", `${(-4 - dx * 6).toFixed(2)}deg`);
-        mascot.style.setProperty("--squint-face-pitch", `${(10 - dy * 9).toFixed(2)}deg`);
-        mascot.style.setProperty("--squint-y", `${(5 + dy * 5).toFixed(2)}px`);
-        mascot.style.setProperty("--squint-eye-y", `${(6 + dy * 7).toFixed(2)}px`);
-        mascot.style.setProperty("--squint-brow-left-y", `${(5 - Math.max(0, -dx) * 8 - Math.max(0, -dy) * 4).toFixed(2)}px`);
-        mascot.style.setProperty("--squint-brow-right-y", `${(5 - Math.max(0, dx) * 8 - Math.max(0, -dy) * 4).toFixed(2)}px`);
-        mascot.style.setProperty("--squint-brow-left-rot", `${(-2 - dx * 6).toFixed(2)}deg`);
-        mascot.style.setProperty("--squint-brow-right-rot", `${(2 - dx * 6).toFixed(2)}deg`);
-        setMascotState(onForehead ? "squint" : "track");
-
-        mascotTrackingTimer = window.setTimeout(() => {
-          if (mascotMode === "tracking") {
-            if (pointerTarget) {
-              const currentRect = mascot.getBoundingClientRect();
-              const currentDx = clampValue(
-                (pointerTarget.x - (currentRect.left + currentRect.width / 2)) /
-                  Math.max(220, window.innerWidth * 0.28),
-                -1,
-                1,
-              );
-              const currentDy = clampValue(
-                (pointerTarget.y - (currentRect.top + currentRect.height / 2)) /
-                  Math.max(180, window.innerHeight * 0.26),
-                -1,
-                1,
-              );
-
-              if (Math.abs(currentDx) < 0.95 && Math.abs(currentDy) < 0.95) {
-                applyPointerTracking(pointerTarget, { hold });
-                return;
-              }
-            }
-
-            mascotMode = "idle";
-            setMascotState("idle-center");
-            scheduleMascotIdle();
-          }
-        }, hold);
-      };
-
-      const followPointer = (event) => {
-        if (event.pointerType && event.pointerType !== "mouse" && event.pointerType !== "pen") {
-          return;
-        }
-
-        pointerTarget = { x: event.clientX, y: event.clientY };
-
-        if (pointerFrame) {
-          return;
-        }
-
-        pointerFrame = window.requestAnimationFrame(() => {
-          pointerFrame = null;
-          applyPointerTracking(pointerTarget);
-        });
-      };
-
-      const lookAtClick = (event) => {
-        const target = event.target;
-
-        if (target instanceof Element && (
-          target.closest(".chat-mascot") ||
-          target.closest(".prompt-input") ||
-          target.closest(".send-button")
-        )) {
-          return;
-        }
-
-        applyPointerTracking({ x: event.clientX, y: event.clientY }, { force: true, hold: 1450 });
-      };
-
-      const restoreMascotMode = () => {
-        mascotMode = document.activeElement === promptInput ? "input" : "idle";
-        setMascotState(mascotMode === "input" ? "look-input" : "idle-center");
-        scheduleMascotIdle();
-      };
-
-      const scheduleMascotIdle = () => {
         window.clearTimeout(mascotIdleTimer);
 
-        if (reduceMotion || mascotMode !== "idle") {
+        if (mascotVideo.dataset.clip !== clipName) {
+          mascotVideo.dataset.clip = clipName;
+          mascotVideo.src = clip.src;
+          mascotVideo.load();
+        }
+
+        mascotMode = clipName;
+        mascot.dataset.state = clipName;
+        mascotVideo.loop = clip.loop;
+
+        if (options.restart !== false) {
+          try {
+            mascotVideo.currentTime = 0;
+          } catch {
+            // Some mobile browsers only allow seeking after metadata is ready.
+          }
+        }
+
+        mascotVideo.play().catch(() => {});
+
+        if (clip.loop && clipName === "awake") {
+          scheduleMascotSleep();
+        }
+      };
+
+      const playMascotAction = (clipName, nextClip = "awake") => {
+        mascotActionActive = true;
+        mascotReturnMode = nextClip;
+        setMascotClip(clipName);
+      };
+
+      const scheduleMascotSleep = () => {
+        window.clearTimeout(mascotIdleTimer);
+
+        if (reduceMotion || document.activeElement === promptInput) {
           return;
         }
 
         mascotIdleTimer = window.setTimeout(() => {
-          const states = ["idle-left", "idle-right", "idle-center", "sleepy", "blink"];
-          const nextState = states[Math.floor(Math.random() * states.length)];
-
-          if (nextState === "blink") {
-            blinkMascot();
-          } else {
-            setMascotState(nextState);
+          if (!mascotActionActive && document.activeElement !== promptInput) {
+            setMascotClip("sleep", { restart: false });
           }
-
-          scheduleMascotIdle();
-        }, 1800 + Math.random() * 2600);
+        }, 8500);
       };
 
-      const triggerMascot = (state, duration = 1000) => {
-        mascotMode = "action";
-        window.clearTimeout(mascotIdleTimer);
-        window.clearTimeout(mascotActionTimer);
-        window.clearTimeout(mascotTrackingTimer);
-        setMascotState(state);
-        mascotActionTimer = window.setTimeout(restoreMascotMode, duration);
+      const restoreMascotMode = () => {
+        const nextClip = document.activeElement === promptInput ? "input" : "awake";
+
+        mascotActionActive = false;
+        setMascotClip(nextClip, { restart: nextClip === "input" });
       };
+
+      mascotVideo.addEventListener("ended", () => {
+        if (!mascotActionActive) {
+          return;
+        }
+
+        restoreMascotMode();
+      });
+
+      Object.values(mascotClips).forEach((clip) => {
+        const video = document.createElement("video");
+        video.src = clip.src;
+        video.muted = true;
+        video.playsInline = true;
+        video.preload = "auto";
+      });
 
       const watchInput = () => {
-        if (mascotMode === "action") {
+        mascotReturnMode = "input";
+
+        if (mascotActionActive) {
           return;
         }
 
         mascotMode = "input";
         window.clearTimeout(mascotIdleTimer);
-        window.clearTimeout(mascotTrackingTimer);
-        setMascotState("look-input");
+        setMascotClip("input", { restart: false });
       };
 
       const leaveInput = () => {
-        if (mascotMode === "action") {
+        mascotReturnMode = "awake";
+
+        if (mascotActionActive) {
           return;
         }
 
-        mascotMode = "idle";
-        setMascotState("idle-center");
-        scheduleMascotIdle();
+        setMascotClip("awake", { restart: false });
       };
 
       const showExchange = (prompt, response) => {
@@ -2159,6 +2090,7 @@
           showExchange(button.dataset.prompt, button.dataset.response);
           button.classList.add("is-used");
           window.requestAnimationFrame(updateFollowupFade);
+          playMascotAction("send", "input");
           promptInput.focus({ preventScroll: true });
         });
       });
@@ -2172,12 +2104,12 @@
           return;
         }
 
-        triggerMascot("look-send", 1300);
+        playMascotAction("send", "input");
         promptButtons.forEach((item) => item.classList.remove("is-active"));
         showExchange(prompt, `I'll route this as a portfolio brief: ${prompt}`);
       });
 
-      mascot.addEventListener("click", () => triggerMascot("startled", 1050));
+      mascot.addEventListener("click", () => playMascotAction("wake", "awake"));
       promptInput.addEventListener("focus", watchInput);
       promptInput.addEventListener("input", watchInput);
       promptInput.addEventListener("blur", () => {
@@ -2187,20 +2119,13 @@
           }
         }, 90);
       });
-      sendButton.addEventListener("pointerdown", () => triggerMascot("look-send", 1300));
-      sendButton.addEventListener("focus", () => triggerMascot("look-send", 900));
-      window.addEventListener("pointermove", followPointer, { passive: true });
-      window.addEventListener("mousemove", followPointer, { passive: true });
-      window.addEventListener("pointerdown", lookAtClick, { capture: true, passive: true });
-      window.addEventListener("mousedown", lookAtClick, { capture: true, passive: true });
+      sendButton.addEventListener("pointerdown", () => playMascotAction("send", "input"));
+      sendButton.addEventListener("focus", () => playMascotAction("send", "input"));
       followups.addEventListener("scroll", updateFollowupFade, { passive: true });
       window.addEventListener("resize", updateFollowupFade);
       window.addEventListener("load", updateFollowupFade);
       updateFollowupFade();
-      if (!reduceMotion) {
-        ledAnimationTimer = window.setInterval(() => refreshLedGlyphs(performance.now()), 16);
-      }
-      scheduleMascotIdle();
+      setMascotClip("sleep", { restart: false });
     </script>
   </body>
 </html>
