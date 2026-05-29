@@ -472,10 +472,12 @@
       }
 
       .assistant-console.has-user {
-        top: calc(50% - 42px);
+        top: 0;
+        bottom: 0;
         transform: translate3d(-50%, 0, 0);
         animation: none;
         opacity: 1;
+        pointer-events: none;
       }
 
       .thread {
@@ -487,7 +489,12 @@
       }
 
       .assistant-console.has-user .thread {
+        position: absolute;
+        top: calc(50% - 42px);
+        left: 0;
+        right: 0;
         margin-bottom: 12px;
+        pointer-events: auto;
       }
 
       .message-row {
@@ -644,8 +651,13 @@
       }
 
       .assistant-console.has-user .followup-rail {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: calc(clamp(28px, 5vh, 54px) + 64px);
         order: 2;
         margin: 0 auto 10px;
+        pointer-events: auto;
       }
 
       .followups {
@@ -867,7 +879,12 @@
       }
 
       .assistant-console.has-user .composer {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: clamp(28px, 5vh, 54px);
         order: 3;
+        pointer-events: auto;
       }
 
       .composer > * {
