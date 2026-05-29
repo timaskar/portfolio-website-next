@@ -100,7 +100,7 @@
       .mascot-hold {
         position: absolute;
         left: 50%;
-        top: calc(50% - 212px);
+        top: calc(50% - 222px);
         z-index: 3;
         display: grid;
         place-items: center;
@@ -472,8 +472,8 @@
       }
 
       .assistant-console.has-user {
-        top: calc(100% - clamp(28px, 5vh, 54px));
-        transform: translate3d(-50%, -100%, 0);
+        top: calc(50% - 42px);
+        transform: translate3d(-50%, 0, 0);
         animation: none;
         opacity: 1;
       }
@@ -582,6 +582,12 @@
         color: var(--text-primary);
       }
 
+      .assistant-console.has-user .user-bubble {
+        border-radius: 22px;
+        border-bottom-right-radius: 10px;
+        padding: 7px 12px 8px;
+      }
+
       .agent-name,
       .followup,
       .send-button {
@@ -624,6 +630,10 @@
         margin: 0;
         font-size: 14px;
         line-height: 1.45;
+      }
+
+      .assistant-console.has-user .user-message {
+        line-height: 1.3;
       }
 
       .followup-rail {
