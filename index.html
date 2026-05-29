@@ -2156,7 +2156,7 @@
         }
 
         .loader.is-chatting .mascot-hold {
-          top: clamp(156px, calc(26vh - 24px), 210px);
+          top: clamp(78px, 12vh, 112px);
         }
 
         .assistant-console {
@@ -2205,12 +2205,12 @@
         }
 
         .assistant-console.has-user .thread {
-          top: clamp(328px, calc(44vh + 8px), 392px);
-          bottom: calc(clamp(28px, 5vh, 54px) + 246px);
+          top: clamp(214px, 26vh, 238px);
+          bottom: calc(env(safe-area-inset-bottom, 0px) + 150px);
           width: calc(100% + 16px);
           max-width: calc(100% + 16px);
           margin: 0 auto;
-          padding: 0 8px 34px;
+          padding: 0 8px 28px;
         }
 
         .message-bubble {
@@ -2317,6 +2317,14 @@
           margin: 0;
         }
 
+        .assistant-console.has-user .followup-rail {
+          left: 0;
+          right: 0;
+          bottom: calc(env(safe-area-inset-bottom, 0px) + 86px);
+          width: 100%;
+          margin: 0;
+        }
+
         .followups {
           display: flex;
           flex-wrap: nowrap;
@@ -2362,6 +2370,10 @@
           z-index: 5;
           width: auto;
           margin: 0;
+        }
+
+        .assistant-console.has-user .composer {
+          bottom: calc(env(safe-area-inset-bottom, 0px) + 18px);
         }
 
         .prompt-input {
