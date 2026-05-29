@@ -525,6 +525,7 @@
         max-width: min(576px, 100%);
         margin: 0 auto;
         padding: 0 8px 30px;
+        align-content: start;
         overflow-x: visible;
         overflow-y: auto;
         overscroll-behavior: contain;
@@ -2207,10 +2208,11 @@
         .assistant-console.has-user .thread {
           top: clamp(214px, 26vh, 238px);
           bottom: calc(env(safe-area-inset-bottom, 0px) + 150px);
-          width: calc(100% + 16px);
-          max-width: calc(100% + 16px);
+          gap: 16px;
+          width: 100%;
+          max-width: 100%;
           margin: 0 auto;
-          padding: 0 8px 28px;
+          padding: 0 0 28px;
         }
 
         .message-bubble {
@@ -2225,7 +2227,7 @@
 
         .assistant-console.has-user .agent-bubble {
           border-bottom-left-radius: 0;
-          padding: 0 4px;
+          padding: 0;
         }
 
         .user-bubble {
