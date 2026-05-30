@@ -778,6 +778,18 @@
         line-height: 1.45;
       }
 
+      .assistant-console.has-user .agent-message.is-streaming::after {
+        content: "";
+        display: inline-block;
+        width: 7px;
+        height: 1em;
+        margin-left: 3px;
+        border-radius: 999px;
+        background: rgba(242, 242, 238, 0.7);
+        vertical-align: -0.16em;
+        animation: stream-caret 780ms steps(2, end) infinite;
+      }
+
       .case-preview-shell {
         position: relative;
         width: 100%;
@@ -1140,6 +1152,88 @@
         text-transform: uppercase;
       }
 
+      .case-preview-panel {
+        position: absolute;
+        top: clamp(206px, calc(50% - 224px), 410px);
+        right: 0;
+        bottom: calc(clamp(28px, 5vh, 54px) + 138px);
+        z-index: 2;
+        box-sizing: border-box;
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr);
+        width: min(520px, calc(50% - 26px));
+        min-width: 0;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 26px;
+        overflow: hidden;
+        background:
+          linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.03)),
+          rgba(18, 18, 18, 0.72);
+        -webkit-backdrop-filter: blur(28px) saturate(1.18);
+        backdrop-filter: blur(28px) saturate(1.18);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.13),
+          0 26px 80px rgba(0, 0, 0, 0.34);
+        opacity: 0;
+        pointer-events: none;
+        transform: translate3d(18px, 0, 0);
+        transition:
+          opacity 260ms var(--ease-out),
+          transform 360ms var(--ease-out);
+      }
+
+      .case-preview-panel[hidden] {
+        display: grid;
+        visibility: hidden;
+      }
+
+      .assistant-console.has-preview .case-preview-panel {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translate3d(0, 0, 0);
+        visibility: visible;
+      }
+
+      .case-preview-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        min-width: 0;
+        padding: 12px 12px 10px 16px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      .case-preview-title {
+        min-width: 0;
+        overflow: hidden;
+        color: rgba(242, 242, 238, 0.86);
+        font-size: 13px;
+        font-weight: 650;
+        line-height: 1.25;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .case-preview-close {
+        display: grid;
+        place-items: center;
+        width: 30px;
+        height: 30px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.06);
+        color: rgba(242, 242, 238, 0.76);
+        cursor: pointer;
+      }
+
+      .case-preview-frame {
+        width: 100%;
+        height: 100%;
+        border: 0;
+        background: #0c0c0c;
+      }
+
       .user-message {
         margin: 0;
         font-size: 14px;
@@ -1394,6 +1488,34 @@
         z-index: 3;
         order: 3;
         pointer-events: auto;
+      }
+
+      @media (min-width: 980px) {
+        .assistant-console.has-user.has-preview {
+          width: min(1160px, calc(100vw - 72px));
+        }
+
+        .assistant-console.has-user.has-preview .thread {
+          left: 0;
+          right: auto;
+          width: min(520px, calc(50% - 34px));
+          max-width: min(520px, calc(50% - 34px));
+          margin: 0;
+        }
+
+        .assistant-console.has-user.has-preview .followup-rail,
+        .assistant-console.has-user.has-preview .composer {
+          left: 0;
+          right: auto;
+          width: min(520px, calc(50% - 34px));
+          margin: 0;
+        }
+      }
+
+      @media (max-width: 979px) {
+        .case-preview-panel {
+          display: none !important;
+        }
       }
 
       .composer > * {
@@ -2162,6 +2284,18 @@
         }
       }
 
+      @keyframes stream-caret {
+        0%,
+        42% {
+          opacity: 1;
+        }
+
+        43%,
+        100% {
+          opacity: 0;
+        }
+      }
+
       @keyframes mobile-followups-dock {
         from {
           opacity: 0.92;
@@ -2699,6 +2833,23 @@
               </div>
             </div>
           </div>
+          <aside
+            class="case-preview-panel"
+            id="case-preview-panel"
+            aria-label="Case preview"
+            hidden
+          >
+            <div class="case-preview-toolbar">
+              <span class="case-preview-title" id="case-preview-title">Case preview</span>
+              <button class="case-preview-close" type="button" aria-label="Close case preview">×</button>
+            </div>
+            <iframe
+              class="case-preview-frame"
+              id="case-preview-frame"
+              title="Case preview"
+              sandbox=""
+            ></iframe>
+          </aside>
           <form class="composer" aria-label="Ask Tim's portfolio agent">
             <input
               class="prompt-input"
@@ -2806,6 +2957,10 @@
       const thread = document.querySelector(".thread");
       const casePreviewShell = document.querySelector("#case-preview-shell");
       const casePreviewRail = document.querySelector("#case-preview-rail");
+      const casePreviewPanel = document.querySelector("#case-preview-panel");
+      const casePreviewTitle = document.querySelector("#case-preview-title");
+      const casePreviewFrame = document.querySelector("#case-preview-frame");
+      const casePreviewClose = document.querySelector(".case-preview-close");
       const userMessage = document.querySelector("#user-message");
       const userMessageRow = document.querySelector("#user-message-row");
       const promptInput = document.querySelector("#portfolio-prompt");
@@ -2859,6 +3014,8 @@
       let mascotActionActive = false;
       let mascotIdleTimer;
       let chatTransitionTimer;
+      let responseStreamTimer;
+      let responseStreamToken = 0;
       let mascotSwapToken = 0;
       let mascotCanvasWidth = 0;
       let mascotCanvasHeight = 0;
@@ -2867,6 +3024,7 @@
       let standbyMascotVideo =
         mascotVideos.find((video) => video !== activeMascotVideo) || activeMascotVideo;
       const mobileLayout = window.matchMedia("(max-width: 760px)");
+      const previewLayout = window.matchMedia("(min-width: 980px)");
       const caseStudies = [
         {
           id: "systems",
@@ -3078,6 +3236,155 @@
         casePreviewRail.innerHTML = "";
         updateCaseRailFade();
         assistantConsole.classList.remove("has-enrichment");
+      };
+
+      const clearResponseStream = () => {
+        window.clearTimeout(responseStreamTimer);
+        responseStreamToken += 1;
+        assistantMessage.classList.remove("is-streaming");
+      };
+
+      const completeExchangeEnrichment = (options = {}) => {
+        if (options.enrichment === "cases") {
+          renderCaseCards(options.activeCaseId);
+        } else {
+          hideCaseCards();
+        }
+
+        updateThreadFade();
+        updateFollowupFade();
+        updateCaseRailFade();
+      };
+
+      const streamAssistantResponse = (response, options = {}) => {
+        clearResponseStream();
+
+        const token = responseStreamToken;
+        const chunks = response.match(/\S+\s*/g) || [response];
+        let index = 0;
+        const streamDelay = options.streamDelay ?? 180;
+
+        assistantMessage.textContent = "";
+        assistantMessage.classList.add("is-streaming");
+
+        const step = () => {
+          if (token !== responseStreamToken) {
+            return;
+          }
+
+          assistantMessage.textContent += chunks[index] || "";
+          index += 1;
+          updateThreadFade();
+
+          if (index >= chunks.length) {
+            assistantMessage.classList.remove("is-streaming");
+            completeExchangeEnrichment(options);
+            return;
+          }
+
+          responseStreamTimer = window.setTimeout(step, reduceMotion ? 0 : 58);
+        };
+
+        responseStreamTimer = window.setTimeout(step, reduceMotion ? 0 : streamDelay);
+      };
+
+      const closeCasePreview = () => {
+        assistantConsole.classList.remove("has-preview");
+        casePreviewPanel.hidden = true;
+        casePreviewFrame.removeAttribute("srcdoc");
+        casePreviewRail.querySelectorAll(".case-card").forEach((card) => {
+          card.classList.remove("is-active");
+        });
+      };
+
+      const buildCasePreviewDocument = (caseStudy) => `
+        <!doctype html>
+        <html>
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <style>
+              :root { color-scheme: dark; }
+              * { box-sizing: border-box; }
+              body {
+                margin: 0;
+                min-height: 100vh;
+                background:
+                  radial-gradient(circle at 72% 18%, rgba(255,255,255,0.08), transparent 28%),
+                  #0c0c0c;
+                color: rgba(242, 242, 238, 0.92);
+                font: 500 15px/1.5 Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+              }
+              main { padding: 24px; }
+              .eyebrow {
+                color: rgba(242, 242, 238, 0.52);
+                font: 700 11px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace;
+                letter-spacing: .08em;
+                text-transform: uppercase;
+              }
+              h1 {
+                margin: 14px 0 14px;
+                font-size: clamp(24px, 4vw, 36px);
+                line-height: 1.05;
+                letter-spacing: 0;
+              }
+              p { margin: 0 0 22px; color: rgba(242, 242, 238, 0.72); }
+              .grid {
+                display: grid;
+                gap: 10px;
+                margin-top: 22px;
+              }
+              .block {
+                border: 1px solid rgba(255,255,255,.12);
+                border-radius: 18px;
+                padding: 16px;
+                background: rgba(255,255,255,.055);
+              }
+              .label {
+                margin-bottom: 8px;
+                color: rgba(242,242,238,.52);
+                font: 700 11px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace;
+                text-transform: uppercase;
+              }
+            </style>
+          </head>
+          <body>
+            <main>
+              <div class="eyebrow">${caseStudy.source} / ${caseStudy.meta}</div>
+              <h1>${caseStudy.title}</h1>
+              <p>${caseStudy.detail}</p>
+              <section class="grid" aria-label="Case preview notes">
+                <div class="block">
+                  <div class="label">Signal</div>
+                  Product decisions, interaction systems, and measurable UX impact.
+                </div>
+                <div class="block">
+                  <div class="label">Review angle</div>
+                  Open this as a focused case walkthrough canvas, not a chat message.
+                </div>
+              </section>
+            </main>
+          </body>
+        </html>
+      `;
+
+      const openCasePreview = (caseStudy, sourceCard) => {
+        if (!previewLayout.matches) {
+          showExchange(caseStudy.title, caseStudy.detail, {
+            enrichment: "cases",
+            activeCaseId: caseStudy.id,
+            sourceElement: sourceCard,
+          });
+          return;
+        }
+
+        casePreviewRail.querySelectorAll(".case-card").forEach((card) => {
+          card.classList.toggle("is-active", card === sourceCard);
+        });
+        casePreviewTitle.textContent = caseStudy.title;
+        casePreviewFrame.srcdoc = buildCasePreviewDocument(caseStudy);
+        casePreviewPanel.hidden = false;
+        assistantConsole.classList.add("has-preview");
       };
 
       const getExchangeForPrompt = (prompt) => {
@@ -3333,6 +3640,7 @@
         const sourceRect = getElementRect(options.sourceElement);
         const shouldAnimateChatEntry = sourceRect && mobileLayout.matches && !reduceMotion;
 
+        closeCasePreview();
         if (shouldAnimateChatEntry) {
           clearChatTransition();
           assistantConsole.classList.add("is-entering-chat");
@@ -3342,18 +3650,17 @@
         assistantConsole.classList.add("has-user");
         userMessage.textContent = prompt;
         userMessageRow.hidden = false;
-        assistantMessage.textContent = response;
-
-        if (options.enrichment === "cases") {
-          renderCaseCards(options.activeCaseId);
-        } else {
-          hideCaseCards();
-        }
+        hideCaseCards();
+        assistantMessage.textContent = "";
 
         promptInput.value = "";
         window.requestAnimationFrame(() => {
           thread.scrollTop = 0;
           runPromptFlight(sourceRect, prompt);
+          streamAssistantResponse(response, {
+            ...options,
+            streamDelay: shouldAnimateChatEntry ? 720 : 180,
+          });
           updateThreadFade();
           updateFollowupFade();
           updateCaseRailFade();
@@ -3374,11 +3681,7 @@
         }
 
         promptInput.blur();
-        showExchange(caseStudy.title, caseStudy.detail, {
-          enrichment: "cases",
-          activeCaseId: caseStudy.id,
-          sourceElement: card,
-        });
+        openCasePreview(caseStudy, card);
         playMascotAction("send", "input");
       });
 
@@ -3441,6 +3744,7 @@
       });
       sendButton.addEventListener("pointerdown", () => playMascotAction("send", "input"));
       sendButton.addEventListener("focus", () => playMascotAction("send", "input"));
+      casePreviewClose.addEventListener("click", closeCasePreview);
       followupScrollButtons.forEach((button) => {
         button.addEventListener("click", () => {
           scrollFollowups(button.dataset.direction === "next" ? 1 : -1);
@@ -3454,6 +3758,9 @@
         updateFollowupFade();
         updateCaseRailFade();
         updateThreadFade();
+        if (!previewLayout.matches && assistantConsole.classList.contains("has-preview")) {
+          closeCasePreview();
+        }
       });
       window.addEventListener("load", () => {
         updateFollowupFade();
