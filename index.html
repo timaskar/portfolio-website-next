@@ -85,6 +85,17 @@
         pointer-events: none;
       }
 
+      video::-webkit-media-controls,
+      video::-webkit-media-controls-panel,
+      video::-webkit-media-controls-play-button,
+      video::-webkit-media-controls-start-playback-button,
+      video::-webkit-media-controls-overlay-play-button {
+        display: none !important;
+        opacity: 0 !important;
+        -webkit-appearance: none;
+        appearance: none;
+      }
+
       .loader-video {
         position: absolute;
         inset: 0;
@@ -94,7 +105,9 @@
         object-fit: contain;
         background: #000;
         pointer-events: none;
-        animation: loader-video-exit 260ms linear 5s forwards;
+        transform: translateZ(0);
+        will-change: opacity;
+        animation: loader-video-exit 420ms linear 5.18s forwards;
       }
 
       .mascot-hold {
@@ -112,7 +125,7 @@
         opacity: 0;
         transform: translate3d(-50%, 10px, 0) scale(0.94);
         cursor: pointer;
-        animation: mascot-hold-enter 520ms var(--ease-out) 5s forwards;
+        animation: mascot-hold-enter 520ms var(--ease-out) 4.9s forwards;
         transition: top 520ms var(--ease-out), width 420ms var(--ease-out);
       }
 
@@ -128,12 +141,14 @@
         position: absolute;
         left: 50%;
         top: 50%;
+        z-index: 0;
         display: block;
         width: 200%;
         height: 200%;
         object-fit: contain;
         background: #000;
         mix-blend-mode: screen;
+        opacity: 0;
         -webkit-mask-image: radial-gradient(
           ellipse 44% 38% at 50% 50%,
           #000 0,
@@ -151,6 +166,12 @@
         pointer-events: none;
         filter: drop-shadow(0 0 28px rgba(242, 242, 238, 0.08));
         transform: translate(-50%, -50%);
+        transition: opacity 140ms linear;
+      }
+
+      .mascot-video.is-active {
+        z-index: 1;
+        opacity: 1;
       }
 
       .chat-mascot {
@@ -469,7 +490,7 @@
         width: min(560px, calc(100vw - 48px));
         opacity: 0;
         transform: translate3d(-50%, var(--console-y-start), 0);
-        animation: console-enter 760ms var(--ease-out) 5.05s forwards;
+        animation: console-enter 760ms var(--ease-out) 5.14s forwards;
         transition:
           top 620ms var(--ease-out),
           transform 620ms var(--ease-out),
@@ -766,22 +787,59 @@
         overscroll-behavior-inline: contain;
         scroll-padding-inline: 0 8px;
         scrollbar-width: none;
+        -webkit-mask-image: none;
+        mask-image: none;
+      }
+
+      .case-preview-rail[hidden] {
+        display: none;
+      }
+
+      .case-preview-rail.has-overflow.is-at-start {
         -webkit-mask-image: linear-gradient(
           90deg,
           #000 0,
-          #000 calc(100% - 6px),
+          #000 calc(100% - 34px),
           transparent 100%
         );
         mask-image: linear-gradient(
           90deg,
           #000 0,
-          #000 calc(100% - 6px),
+          #000 calc(100% - 34px),
           transparent 100%
         );
       }
 
-      .case-preview-rail[hidden] {
-        display: none;
+      .case-preview-rail.has-overflow.is-at-end {
+        -webkit-mask-image: linear-gradient(
+          90deg,
+          transparent 0,
+          #000 34px,
+          #000 100%
+        );
+        mask-image: linear-gradient(
+          90deg,
+          transparent 0,
+          #000 34px,
+          #000 100%
+        );
+      }
+
+      .case-preview-rail.has-overflow:not(.is-at-start):not(.is-at-end) {
+        -webkit-mask-image: linear-gradient(
+          90deg,
+          transparent 0,
+          #000 34px,
+          #000 calc(100% - 34px),
+          transparent 100%
+        );
+        mask-image: linear-gradient(
+          90deg,
+          transparent 0,
+          #000 34px,
+          #000 calc(100% - 34px),
+          transparent 100%
+        );
       }
 
       .case-preview-rail::-webkit-scrollbar {
@@ -789,24 +847,31 @@
       }
 
       .case-card {
-        --case-accent: var(--signal-active);
-        --case-soft: rgba(159, 255, 215, 0.14);
-        --case-border: rgba(159, 255, 215, 0.44);
-        --case-glow: rgba(159, 255, 215, 0.22);
+        --case-accent: rgba(242, 242, 238, 0.9);
+        --case-soft: rgba(242, 242, 238, 0.09);
+        --case-border: rgba(242, 242, 238, 0.22);
+        --case-glow: rgba(242, 242, 238, 0.12);
         position: relative;
-        flex: 0 0 208px;
+        flex: 0 0 218px;
         overflow: hidden;
         display: grid;
-        grid-template-rows: 104px minmax(128px, auto);
-        min-height: 236px;
-        border: 1px solid rgba(242, 242, 238, 0.13);
-        border-radius: 6px;
+        grid-template-rows: 108px minmax(126px, auto);
+        min-height: 244px;
+        border: 1px solid rgba(242, 242, 238, 0.16);
+        border-radius: 24px;
         padding: 0;
-        background: rgba(12, 12, 12, 0.94);
+        background:
+          linear-gradient(145deg, rgba(255, 255, 255, 0.105), rgba(255, 255, 255, 0.026) 48%, rgba(255, 255, 255, 0.07)),
+          rgba(24, 24, 24, 0.58);
+        -webkit-backdrop-filter: blur(26px) saturate(1.24);
+        backdrop-filter: blur(26px) saturate(1.24);
         color: var(--text-primary);
         text-align: left;
         cursor: pointer;
-        box-shadow: inset 0 1px 0 rgba(242, 242, 238, 0.05);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.14),
+          inset 0 -1px 0 rgba(255, 255, 255, 0.045),
+          0 16px 42px rgba(0, 0, 0, 0.32);
         animation: case-card-enter 360ms var(--ease-out) both;
         animation-delay: calc(var(--card-index, 0) * 42ms);
         transition:
@@ -819,40 +884,56 @@
       .case-card:hover,
       .case-card:focus-visible,
       .case-card.is-active {
-        border-color: rgba(159, 255, 215, 0.42);
-        background: rgba(18, 22, 20, 0.96);
+        border-color: var(--case-border);
+        background:
+          linear-gradient(145deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.035) 48%, var(--case-soft)),
+          rgba(25, 27, 27, 0.68);
         outline: none;
-        transform: translateY(-2px);
+        transform: translateY(-1px);
         box-shadow:
-          inset 0 1px 0 rgba(242, 242, 238, 0.07),
-          0 0 0 1px rgba(159, 255, 215, 0.04),
-          0 18px 36px rgba(0, 0, 0, 0.28);
+          inset 0 1px 0 rgba(255, 255, 255, 0.17),
+          0 0 0 1px rgba(255, 255, 255, 0.035),
+          0 20px 46px rgba(0, 0, 0, 0.34),
+          0 0 34px var(--case-glow);
       }
 
       .case-card:focus-visible {
         box-shadow:
-          0 0 0 2px rgba(159, 255, 215, 0.32),
+          0 0 0 2px rgba(242, 242, 238, 0.28),
           0 18px 36px rgba(0, 0, 0, 0.28);
+      }
+
+      .case-card::after {
+        content: "→";
+        position: absolute;
+        right: 12px;
+        bottom: 12px;
+        display: grid;
+        place-items: center;
+        width: 30px;
+        height: 30px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.075);
+        color: rgba(242, 242, 238, 0.74);
+        font-size: 17px;
+        font-weight: 650;
+        line-height: 1;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
       }
 
       .case-preview-art {
         position: relative;
         overflow: hidden;
-        min-height: 104px;
-        border-bottom: 1px solid rgba(242, 242, 238, 0.1);
+        min-height: 100px;
+        margin: 8px 8px 0;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 18px;
         background:
-          linear-gradient(135deg, rgba(242, 242, 238, 0.16), transparent 28%),
-          repeating-linear-gradient(
-            90deg,
-            rgba(242, 242, 238, 0.08) 0 1px,
-            transparent 1px 12px
-          ),
-          repeating-linear-gradient(
-            0deg,
-            rgba(242, 242, 238, 0.055) 0 1px,
-            transparent 1px 12px
-          ),
-          #101010;
+          radial-gradient(circle at 22% 24%, var(--case-soft) 0 18px, transparent 44px),
+          radial-gradient(circle at 78% 68%, rgba(255, 255, 255, 0.11) 0 16px, transparent 48px),
+          linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.025)),
+          rgba(255, 255, 255, 0.035);
       }
 
       .case-preview-art::before {
@@ -873,12 +954,8 @@
         position: absolute;
         inset: 0;
         background:
-          linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.42)),
-          repeating-linear-gradient(
-            0deg,
-            transparent 0 5px,
-            rgba(0, 0, 0, 0.24) 5px 6px
-          );
+          linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.28)),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.05), transparent 34%, rgba(255, 255, 255, 0.035));
         pointer-events: none;
       }
 
@@ -889,31 +966,31 @@
       }
 
       .case-card[data-variant="systems"] {
-        --case-accent: #9fffd7;
-        --case-soft: rgba(159, 255, 215, 0.14);
-        --case-border: rgba(159, 255, 215, 0.44);
-        --case-glow: rgba(159, 255, 215, 0.22);
+        --case-accent: rgba(242, 242, 238, 0.92);
+        --case-soft: rgba(242, 242, 238, 0.095);
+        --case-border: rgba(242, 242, 238, 0.24);
+        --case-glow: rgba(242, 242, 238, 0.12);
       }
 
       .case-card[data-variant="growth"] {
-        --case-accent: #e6d06c;
-        --case-soft: rgba(230, 208, 108, 0.13);
-        --case-border: rgba(230, 208, 108, 0.38);
-        --case-glow: rgba(230, 208, 108, 0.18);
+        --case-accent: rgba(229, 213, 143, 0.9);
+        --case-soft: rgba(229, 213, 143, 0.09);
+        --case-border: rgba(229, 213, 143, 0.22);
+        --case-glow: rgba(229, 213, 143, 0.1);
       }
 
       .case-card[data-variant="fintech"] {
-        --case-accent: #d8d8d0;
-        --case-soft: rgba(216, 216, 208, 0.13);
-        --case-border: rgba(216, 216, 208, 0.34);
-        --case-glow: rgba(216, 216, 208, 0.16);
+        --case-accent: rgba(216, 216, 208, 0.9);
+        --case-soft: rgba(216, 216, 208, 0.08);
+        --case-border: rgba(216, 216, 208, 0.2);
+        --case-glow: rgba(216, 216, 208, 0.1);
       }
 
       .case-card[data-variant="ai"] {
-        --case-accent: #4fd6b0;
-        --case-soft: rgba(79, 214, 176, 0.14);
-        --case-border: rgba(79, 214, 176, 0.42);
-        --case-glow: rgba(79, 214, 176, 0.2);
+        --case-accent: rgba(205, 218, 214, 0.9);
+        --case-soft: rgba(205, 218, 214, 0.085);
+        --case-border: rgba(205, 218, 214, 0.21);
+        --case-glow: rgba(205, 218, 214, 0.1);
       }
 
       .case-art-grid,
@@ -932,8 +1009,9 @@
 
       .case-art-cell {
         height: 18px;
-        border: 1px solid rgba(242, 242, 238, 0.14);
-        background: rgba(242, 242, 238, 0.035);
+        border: 1px solid rgba(255, 255, 255, 0.09);
+        border-radius: 7px;
+        background: rgba(255, 255, 255, 0.035);
       }
 
       .case-art-cell:nth-child(2),
@@ -957,7 +1035,8 @@
         flex: 1;
         min-width: 0;
         height: var(--bar-height, 50%);
-        background: rgba(242, 242, 238, 0.12);
+        border-radius: 999px 999px 4px 4px;
+        background: rgba(255, 255, 255, 0.12);
       }
 
       .case-art-bar:nth-child(3),
@@ -1000,16 +1079,21 @@
         display: grid;
         align-content: start;
         min-width: 0;
-        padding: 13px 14px 14px;
+        padding: 12px 14px 48px;
       }
 
       .case-card-source {
         display: inline-flex;
         align-items: center;
         gap: 7px;
+        width: fit-content;
         min-width: 0;
-        color: rgba(242, 242, 238, 0.78);
-        font-size: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.09);
+        border-radius: 999px;
+        padding: 5px 9px 5px 8px;
+        background: rgba(255, 255, 255, 0.05);
+        color: rgba(242, 242, 238, 0.72);
+        font-size: 11px;
         font-weight: 650;
         line-height: 1.2;
       }
@@ -1017,29 +1101,29 @@
       .case-card-source::before {
         content: "";
         flex: 0 0 auto;
-        width: 8px;
-        height: 8px;
-        border: 1px solid var(--case-border);
-        background: var(--case-soft);
+        width: 6px;
+        height: 6px;
+        border-radius: 999px;
+        background: var(--case-accent);
         box-shadow: 0 0 14px var(--case-glow);
       }
 
       .case-card-title {
         display: -webkit-box;
-        min-height: 4.05em;
-        margin: 9px 0 0;
+        min-height: 3.96em;
+        margin: 11px 0 0;
         overflow: hidden;
         color: var(--text-primary);
-        font-size: 16px;
+        font-size: 15px;
         font-weight: 650;
         letter-spacing: 0;
-        line-height: 1.35;
+        line-height: 1.32;
         -webkit-box-orient: vertical;
         -webkit-line-clamp: 3;
       }
 
       .case-card-meta {
-        margin-top: 16px;
+        margin-top: 12px;
         color: var(--text-muted);
         font-family: "IBM Plex Mono", "JetBrains Mono", SFMono-Regular, Consolas, monospace;
         font-size: 11px;
@@ -2340,13 +2424,15 @@
         }
 
         .case-card {
-          flex-basis: min(72vw, 218px);
-          grid-template-rows: 86px minmax(112px, auto);
-          min-height: 210px;
+          flex-basis: min(70vw, 220px);
+          grid-template-rows: 92px minmax(118px, auto);
+          min-height: 222px;
         }
 
         .case-preview-art {
-          min-height: 86px;
+          min-height: 84px;
+          margin: 7px 7px 0;
+          border-radius: 17px;
         }
 
         .case-art-grid {
@@ -2373,11 +2459,12 @@
         }
 
         .case-card-body {
-          padding: 11px 12px 12px;
+          padding: 10px 12px 44px;
         }
 
         .case-card-source {
           font-size: 11px;
+          padding: 5px 8px;
         }
 
         .case-card-title {
@@ -2539,6 +2626,8 @@
           muted
           playsinline
           preload="auto"
+          disablepictureinpicture
+          controlslist="nodownload nofullscreen noplaybackrate"
           aria-hidden="true"
         ></video>
         <button
@@ -2548,14 +2637,26 @@
           aria-label="Wake Tim's portfolio assistant"
         >
           <video
-            class="mascot-video"
+            class="mascot-video is-active"
             id="mascot-video"
+            data-clip="sleep"
             src="assets/mascot-sleep-loop.mp4?v=video-clips-4"
             autoplay
             muted
             loop
             playsinline
             preload="auto"
+            disablepictureinpicture
+            controlslist="nodownload nofullscreen noplaybackrate"
+            aria-hidden="true"
+          ></video>
+          <video
+            class="mascot-video"
+            muted
+            playsinline
+            preload="auto"
+            disablepictureinpicture
+            controlslist="nodownload nofullscreen noplaybackrate"
             aria-hidden="true"
           ></video>
         </button>
@@ -2697,7 +2798,7 @@
       const composer = document.querySelector(".composer");
       const sendButton = document.querySelector(".send-button");
       const mascot = document.querySelector(".chat-mascot");
-      const mascotVideo = document.querySelector("#mascot-video");
+      const mascotVideos = Array.from(document.querySelectorAll(".mascot-video"));
       const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       const mascotClips = {
         sleep: {
@@ -2738,6 +2839,11 @@
       let mascotActionActive = false;
       let mascotIdleTimer;
       let chatTransitionTimer;
+      let mascotSwapToken = 0;
+      let activeMascotVideo =
+        mascotVideos.find((video) => video.classList.contains("is-active")) || mascotVideos[0];
+      let standbyMascotVideo =
+        mascotVideos.find((video) => video !== activeMascotVideo) || activeMascotVideo;
       const mobileLayout = window.matchMedia("(max-width: 760px)");
       const caseStudies = [
         {
@@ -2814,6 +2920,21 @@
         thread.classList.toggle("is-scrolled", scrollTop > 1);
       };
 
+      const updateCaseRailFade = () => {
+        if (casePreviewRail.hidden) {
+          casePreviewRail.classList.remove("has-overflow", "is-at-start", "is-at-end");
+          return;
+        }
+
+        const maxScroll = Math.max(0, casePreviewRail.scrollWidth - casePreviewRail.clientWidth);
+        const scrollLeft = Math.round(casePreviewRail.scrollLeft);
+        const hasOverflow = maxScroll > 1;
+
+        casePreviewRail.classList.toggle("has-overflow", hasOverflow);
+        casePreviewRail.classList.toggle("is-at-start", maxScroll <= 1 || scrollLeft <= 1);
+        casePreviewRail.classList.toggle("is-at-end", maxScroll <= 1 || scrollLeft >= maxScroll - 1);
+      };
+
       const scrollFollowups = (direction) => {
         const distance = Math.max(180, followups.clientWidth * 0.68);
 
@@ -2874,11 +2995,13 @@
 
         casePreviewRail.hidden = false;
         assistantConsole.classList.add("has-enrichment");
+        window.requestAnimationFrame(updateCaseRailFade);
       };
 
       const hideCaseCards = () => {
         casePreviewRail.hidden = true;
         casePreviewRail.innerHTML = "";
+        updateCaseRailFade();
         assistantConsole.classList.remove("has-enrichment");
       };
 
@@ -2897,6 +3020,37 @@
         };
       };
 
+      const playMascotVideo = (video, restart) => {
+        if (restart !== false) {
+          try {
+            video.currentTime = 0;
+          } catch {
+            // Some mobile browsers only allow seeking after metadata is ready.
+          }
+        }
+
+        video.play().catch(() => {});
+      };
+
+      const activateMascotVideo = (nextVideo) => {
+        const previousVideo = activeMascotVideo;
+
+        if (!nextVideo || nextVideo === previousVideo) {
+          return;
+        }
+
+        nextVideo.classList.add("is-active");
+        previousVideo.classList.remove("is-active");
+        activeMascotVideo = nextVideo;
+        standbyMascotVideo = previousVideo;
+
+        window.setTimeout(() => {
+          if (standbyMascotVideo === previousVideo) {
+            previousVideo.pause();
+          }
+        }, 180);
+      };
+
       const setMascotClip = (clipName, options = {}) => {
         const clip = mascotClips[clipName];
 
@@ -2905,30 +3059,62 @@
         }
 
         window.clearTimeout(mascotIdleTimer);
-
-        if (mascotVideo.dataset.clip !== clipName) {
-          mascotVideo.dataset.clip = clipName;
-          mascotVideo.src = clip.src;
-          mascotVideo.load();
-        }
+        mascotSwapToken += 1;
 
         mascotMode = clipName;
         mascot.dataset.state = clipName;
-        mascotVideo.loop = clip.loop;
 
-        if (options.restart !== false) {
-          try {
-            mascotVideo.currentTime = 0;
-          } catch {
-            // Some mobile browsers only allow seeking after metadata is ready.
+        if (activeMascotVideo?.dataset.clip === clipName) {
+          activeMascotVideo.loop = clip.loop;
+          playMascotVideo(activeMascotVideo, options.restart);
+
+          if (clip.loop && clipName === "awake") {
+            scheduleMascotSleep();
           }
+
+          return;
         }
 
-        mascotVideo.play().catch(() => {});
+        const swapToken = mascotSwapToken;
+        const nextVideo = standbyMascotVideo || mascotVideos.find((video) => video !== activeMascotVideo);
 
-        if (clip.loop && clipName === "awake") {
-          scheduleMascotSleep();
+        if (!nextVideo) {
+          return;
         }
+
+        nextVideo.muted = true;
+        nextVideo.playsInline = true;
+        nextVideo.preload = "auto";
+        nextVideo.loop = clip.loop;
+
+        if (nextVideo.dataset.clip !== clipName) {
+          nextVideo.dataset.clip = clipName;
+          nextVideo.src = clip.src;
+          nextVideo.load();
+        }
+
+        const showPreparedVideo = () => {
+          if (swapToken !== mascotSwapToken) {
+            return;
+          }
+
+          nextVideo.removeEventListener("canplay", showPreparedVideo);
+          nextVideo.removeEventListener("loadeddata", showPreparedVideo);
+          playMascotVideo(nextVideo, options.restart);
+          activateMascotVideo(nextVideo);
+
+          if (clip.loop && clipName === "awake") {
+            scheduleMascotSleep();
+          }
+        };
+
+        if (nextVideo.readyState >= 2) {
+          window.requestAnimationFrame(showPreparedVideo);
+          return;
+        }
+
+        nextVideo.addEventListener("canplay", showPreparedVideo, { once: true });
+        nextVideo.addEventListener("loadeddata", showPreparedVideo, { once: true });
       };
 
       const playMascotAction = (clipName, nextClip = "awake") => {
@@ -2971,12 +3157,14 @@
         setMascotClip(nextClip, { restart: nextClip === "input" });
       };
 
-      mascotVideo.addEventListener("ended", () => {
-        if (!mascotActionActive) {
-          return;
-        }
+      mascotVideos.forEach((video) => {
+        video.addEventListener("ended", (event) => {
+          if (event.currentTarget !== activeMascotVideo || !mascotActionActive) {
+            return;
+          }
 
-        restoreMascotMode();
+          restoreMascotMode();
+        });
       });
 
       Object.values(mascotClips).forEach((clip) => {
@@ -3093,6 +3281,7 @@
           runPromptFlight(sourceRect, prompt);
           updateThreadFade();
           updateFollowupFade();
+          updateCaseRailFade();
         });
       };
 
@@ -3183,16 +3372,20 @@
         });
       });
       followups.addEventListener("scroll", updateFollowupFade, { passive: true });
+      casePreviewRail.addEventListener("scroll", updateCaseRailFade, { passive: true });
       thread.addEventListener("scroll", updateThreadFade, { passive: true });
       window.addEventListener("resize", () => {
         updateFollowupFade();
+        updateCaseRailFade();
         updateThreadFade();
       });
       window.addEventListener("load", () => {
         updateFollowupFade();
+        updateCaseRailFade();
         updateThreadFade();
       });
       updateFollowupFade();
+      updateCaseRailFade();
       updateThreadFade();
       setMascotClip("sleep", { restart: false });
     </script>
