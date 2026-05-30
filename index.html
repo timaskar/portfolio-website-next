@@ -85,6 +85,17 @@
         pointer-events: none;
       }
 
+      video::-webkit-media-controls,
+      video::-webkit-media-controls-panel,
+      video::-webkit-media-controls-play-button,
+      video::-webkit-media-controls-start-playback-button,
+      video::-webkit-media-controls-overlay-play-button {
+        display: none !important;
+        opacity: 0 !important;
+        -webkit-appearance: none;
+        appearance: none;
+      }
+
       .loader-video {
         position: absolute;
         inset: 0;
@@ -94,7 +105,9 @@
         object-fit: contain;
         background: #000;
         pointer-events: none;
-        animation: loader-video-exit 260ms linear 5s forwards;
+        transform: translateZ(0);
+        will-change: opacity;
+        animation: loader-video-exit 420ms linear 5.18s forwards;
       }
 
       .mascot-hold {
@@ -112,7 +125,7 @@
         opacity: 0;
         transform: translate3d(-50%, 10px, 0) scale(0.94);
         cursor: pointer;
-        animation: mascot-hold-enter 520ms var(--ease-out) 5s forwards;
+        animation: mascot-hold-enter 520ms var(--ease-out) 4.9s forwards;
         transition: top 520ms var(--ease-out), width 420ms var(--ease-out);
       }
 
@@ -477,7 +490,7 @@
         width: min(560px, calc(100vw - 48px));
         opacity: 0;
         transform: translate3d(-50%, var(--console-y-start), 0);
-        animation: console-enter 760ms var(--ease-out) 5.05s forwards;
+        animation: console-enter 760ms var(--ease-out) 5.14s forwards;
         transition:
           top 620ms var(--ease-out),
           transform 620ms var(--ease-out),
@@ -834,10 +847,10 @@
       }
 
       .case-card {
-        --case-accent: var(--signal-active);
-        --case-soft: rgba(159, 255, 215, 0.14);
-        --case-border: rgba(159, 255, 215, 0.44);
-        --case-glow: rgba(159, 255, 215, 0.22);
+        --case-accent: rgba(242, 242, 238, 0.9);
+        --case-soft: rgba(242, 242, 238, 0.09);
+        --case-border: rgba(242, 242, 238, 0.22);
+        --case-glow: rgba(242, 242, 238, 0.12);
         position: relative;
         flex: 0 0 218px;
         overflow: hidden;
@@ -886,7 +899,7 @@
 
       .case-card:focus-visible {
         box-shadow:
-          0 0 0 2px rgba(159, 255, 215, 0.32),
+          0 0 0 2px rgba(242, 242, 238, 0.28),
           0 18px 36px rgba(0, 0, 0, 0.28);
       }
 
@@ -953,31 +966,31 @@
       }
 
       .case-card[data-variant="systems"] {
-        --case-accent: #9fffd7;
-        --case-soft: rgba(159, 255, 215, 0.14);
-        --case-border: rgba(159, 255, 215, 0.44);
-        --case-glow: rgba(159, 255, 215, 0.22);
+        --case-accent: rgba(242, 242, 238, 0.92);
+        --case-soft: rgba(242, 242, 238, 0.095);
+        --case-border: rgba(242, 242, 238, 0.24);
+        --case-glow: rgba(242, 242, 238, 0.12);
       }
 
       .case-card[data-variant="growth"] {
-        --case-accent: #e6d06c;
-        --case-soft: rgba(230, 208, 108, 0.13);
-        --case-border: rgba(230, 208, 108, 0.38);
-        --case-glow: rgba(230, 208, 108, 0.18);
+        --case-accent: rgba(229, 213, 143, 0.9);
+        --case-soft: rgba(229, 213, 143, 0.09);
+        --case-border: rgba(229, 213, 143, 0.22);
+        --case-glow: rgba(229, 213, 143, 0.1);
       }
 
       .case-card[data-variant="fintech"] {
-        --case-accent: #d8d8d0;
-        --case-soft: rgba(216, 216, 208, 0.13);
-        --case-border: rgba(216, 216, 208, 0.34);
-        --case-glow: rgba(216, 216, 208, 0.16);
+        --case-accent: rgba(216, 216, 208, 0.9);
+        --case-soft: rgba(216, 216, 208, 0.08);
+        --case-border: rgba(216, 216, 208, 0.2);
+        --case-glow: rgba(216, 216, 208, 0.1);
       }
 
       .case-card[data-variant="ai"] {
-        --case-accent: #4fd6b0;
-        --case-soft: rgba(79, 214, 176, 0.14);
-        --case-border: rgba(79, 214, 176, 0.42);
-        --case-glow: rgba(79, 214, 176, 0.2);
+        --case-accent: rgba(205, 218, 214, 0.9);
+        --case-soft: rgba(205, 218, 214, 0.085);
+        --case-border: rgba(205, 218, 214, 0.21);
+        --case-glow: rgba(205, 218, 214, 0.1);
       }
 
       .case-art-grid,
@@ -2613,6 +2626,8 @@
           muted
           playsinline
           preload="auto"
+          disablepictureinpicture
+          controlslist="nodownload nofullscreen noplaybackrate"
           aria-hidden="true"
         ></video>
         <button
@@ -2631,6 +2646,8 @@
             loop
             playsinline
             preload="auto"
+            disablepictureinpicture
+            controlslist="nodownload nofullscreen noplaybackrate"
             aria-hidden="true"
           ></video>
           <video
@@ -2638,6 +2655,8 @@
             muted
             playsinline
             preload="auto"
+            disablepictureinpicture
+            controlslist="nodownload nofullscreen noplaybackrate"
             aria-hidden="true"
           ></video>
         </button>
