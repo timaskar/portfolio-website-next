@@ -31,6 +31,12 @@
         --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
         --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
         --ease-mascot: cubic-bezier(0.45, 0, 0.2, 1);
+        --intro-mascot-delay: 2.32s;
+        --intro-console-delay: 2.78s;
+        --intro-video-fade-delay: 2.62s;
+        --intro-video-fade-duration: 300ms;
+        --mascot-start-width: min(274px, 31vw);
+        --mascot-chat-width: min(238px, 27vw);
         font-family: Inter, Manrope, ui-sans-serif, system-ui, -apple-system,
           BlinkMacSystemFont, "Segoe UI", sans-serif;
         color: var(--text-primary);
@@ -107,7 +113,7 @@
         pointer-events: none;
         transform: translateZ(0);
         will-change: opacity;
-        animation: loader-video-exit 420ms linear 5.18s forwards;
+        animation: loader-video-exit var(--intro-video-fade-duration) linear var(--intro-video-fade-delay) forwards;
       }
 
       .mascot-hold {
@@ -117,19 +123,19 @@
         z-index: 3;
         display: grid;
         place-items: center;
-        width: min(238px, 27vw);
+        width: var(--mascot-start-width);
         aspect-ratio: 512 / 320;
         border: 0;
         padding: 0;
         background: transparent;
         opacity: 0;
-        transform: translate3d(-50%, 10px, 0) scale(0.94);
+        transform: translate3d(-50%, 2px, 0) scale(0.992);
         cursor: pointer;
-        animation: mascot-hold-enter 520ms var(--ease-out) 4.9s forwards;
+        animation: mascot-hold-enter 720ms cubic-bezier(0.22, 1, 0.36, 1) var(--intro-mascot-delay) forwards;
         transition:
-          left 520ms var(--ease-out),
-          top 520ms var(--ease-out),
-          width 420ms var(--ease-out);
+          left 680ms cubic-bezier(0.22, 1, 0.36, 1),
+          top 680ms cubic-bezier(0.22, 1, 0.36, 1),
+          width 520ms cubic-bezier(0.22, 1, 0.36, 1);
       }
 
       .mascot-hold:focus-visible {
@@ -138,6 +144,7 @@
 
       .loader.is-chatting .mascot-hold {
         top: clamp(28px, calc(9vh - 24px), 88px);
+        width: var(--mascot-chat-width);
       }
 
       @media (min-width: 980px) {
@@ -502,7 +509,7 @@
         width: min(560px, calc(100vw - 48px));
         opacity: 0;
         transform: translate3d(-50%, var(--console-y-start), 0);
-        animation: console-enter 760ms var(--ease-out) 5.14s forwards;
+        animation: console-enter 640ms var(--ease-out) var(--intro-console-delay) forwards;
         transition:
           top 620ms var(--ease-out),
           transform 620ms var(--ease-out),
@@ -799,6 +806,50 @@
         animation: stream-caret 780ms steps(2, end) infinite;
       }
 
+      .source-pill {
+        display: inline-flex;
+        align-items: center;
+        max-width: none;
+        min-height: 0;
+        margin: 0 2px;
+        padding: 0 1px;
+        border: 0;
+        border-radius: 3px;
+        background: transparent;
+        color: rgba(242, 242, 238, 0.46);
+        font: 700 10px/1.1 ui-monospace, SFMono-Regular, Menlo, monospace;
+        letter-spacing: 0;
+        white-space: nowrap;
+        vertical-align: 0.08em;
+        cursor: help;
+      }
+
+      .source-pill::before {
+        content: "[";
+        flex: 0 0 auto;
+      }
+
+      .source-pill::after {
+        content: "]";
+        flex: 0 0 auto;
+      }
+
+      .source-pill-label {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .source-pill:focus-visible {
+        background: rgba(242, 242, 238, 0.06);
+        outline: 1px solid rgba(242, 242, 238, 0.28);
+        outline-offset: 2px;
+      }
+
+      .agent-message.is-error {
+        color: rgba(242, 242, 238, 0.74);
+      }
+
       .case-preview-shell {
         position: relative;
         width: 100%;
@@ -880,26 +931,23 @@
         --case-border: rgba(242, 242, 238, 0.22);
         --case-glow: rgba(242, 242, 238, 0.12);
         position: relative;
-        flex: 0 0 218px;
+        flex: 0 0 206px;
         overflow: hidden;
         display: grid;
-        grid-template-rows: 108px minmax(126px, auto);
-        min-height: 244px;
+        grid-template-rows: 84px minmax(88px, auto);
+        min-height: 176px;
         border: 1px solid rgba(242, 242, 238, 0.16);
-        border-radius: 24px;
+        border-radius: 18px;
         padding: 0;
         background:
-          linear-gradient(145deg, rgba(255, 255, 255, 0.105), rgba(255, 255, 255, 0.026) 48%, rgba(255, 255, 255, 0.07)),
-          rgba(24, 24, 24, 0.58);
-        -webkit-backdrop-filter: blur(26px) saturate(1.24);
-        backdrop-filter: blur(26px) saturate(1.24);
+          linear-gradient(145deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.018) 48%, rgba(255, 255, 255, 0.035)),
+          rgba(12, 12, 12, 0.94);
         color: var(--text-primary);
         text-align: left;
         cursor: pointer;
         box-shadow:
-          inset 0 1px 0 rgba(255, 255, 255, 0.14),
-          inset 0 -1px 0 rgba(255, 255, 255, 0.045),
-          0 16px 42px rgba(0, 0, 0, 0.32);
+          inset 0 1px 0 rgba(255, 255, 255, 0.09),
+          0 10px 24px rgba(0, 0, 0, 0.26);
         animation: case-card-enter 360ms var(--ease-out) both;
         animation-delay: calc(var(--card-index, 0) * 42ms);
         transition:
@@ -914,15 +962,15 @@
       .case-card.is-active {
         border-color: var(--case-border);
         background:
-          linear-gradient(145deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.035) 48%, var(--case-soft)),
-          rgba(25, 27, 27, 0.68);
+          linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.024) 48%, var(--case-soft)),
+          rgba(14, 14, 14, 0.96);
         outline: none;
         transform: translateY(-1px);
         box-shadow:
-          inset 0 1px 0 rgba(255, 255, 255, 0.17),
+          inset 0 1px 0 rgba(255, 255, 255, 0.12),
           0 0 0 1px rgba(255, 255, 255, 0.035),
-          0 20px 46px rgba(0, 0, 0, 0.34),
-          0 0 34px var(--case-glow);
+          0 12px 28px rgba(0, 0, 0, 0.28),
+          0 0 22px var(--case-glow);
       }
 
       .case-card:focus-visible {
@@ -934,17 +982,17 @@
       .case-card::after {
         content: "→";
         position: absolute;
-        right: 12px;
-        bottom: 12px;
+        right: 10px;
+        bottom: 10px;
         display: grid;
         place-items: center;
-        width: 30px;
-        height: 30px;
+        width: 26px;
+        height: 26px;
         border: 1px solid rgba(255, 255, 255, 0.12);
         border-radius: 999px;
         background: rgba(255, 255, 255, 0.075);
         color: rgba(242, 242, 238, 0.74);
-        font-size: 17px;
+        font-size: 15px;
         font-weight: 650;
         line-height: 1;
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
@@ -953,10 +1001,10 @@
       .case-preview-art {
         position: relative;
         overflow: hidden;
-        min-height: 100px;
-        margin: 8px 8px 0;
+        min-height: 72px;
+        margin: 6px 6px 0;
         border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 18px;
+        border-radius: 14px;
         background:
           radial-gradient(circle at 22% 24%, var(--case-soft) 0 18px, transparent 44px),
           radial-gradient(circle at 78% 68%, rgba(255, 255, 255, 0.11) 0 16px, transparent 48px),
@@ -1107,58 +1155,21 @@
         display: grid;
         align-content: start;
         min-width: 0;
-        padding: 12px 14px 48px;
-      }
-
-      .case-card-source {
-        display: inline-flex;
-        align-items: center;
-        gap: 7px;
-        width: fit-content;
-        min-width: 0;
-        border: 1px solid rgba(255, 255, 255, 0.09);
-        border-radius: 999px;
-        padding: 5px 9px 5px 8px;
-        background: rgba(255, 255, 255, 0.05);
-        color: rgba(242, 242, 238, 0.72);
-        font-size: 11px;
-        font-weight: 650;
-        line-height: 1.2;
-      }
-
-      .case-card-source::before {
-        content: "";
-        flex: 0 0 auto;
-        width: 6px;
-        height: 6px;
-        border-radius: 999px;
-        background: var(--case-accent);
-        box-shadow: 0 0 14px var(--case-glow);
+        padding: 10px 12px 38px;
       }
 
       .case-card-title {
         display: -webkit-box;
-        min-height: 3.96em;
-        margin: 11px 0 0;
+        min-height: 3.84em;
+        margin: 0;
         overflow: hidden;
         color: var(--text-primary);
-        font-size: 15px;
+        font-size: 14px;
         font-weight: 650;
         letter-spacing: 0;
-        line-height: 1.32;
+        line-height: 1.28;
         -webkit-box-orient: vertical;
         -webkit-line-clamp: 3;
-      }
-
-      .case-card-meta {
-        margin-top: 12px;
-        color: var(--text-muted);
-        font-family: "IBM Plex Mono", "JetBrains Mono", SFMono-Regular, Consolas, monospace;
-        font-size: 11px;
-        font-weight: 600;
-        letter-spacing: 0.04em;
-        line-height: 1.25;
-        text-transform: uppercase;
       }
 
       .case-preview-panel {
@@ -1175,9 +1186,9 @@
         border: 1px solid rgba(255, 255, 255, 0.14);
         border-radius: 26px;
         overflow: hidden;
-        background: rgba(14, 14, 14, 0.86);
-        -webkit-backdrop-filter: blur(28px) saturate(1.18);
-        backdrop-filter: blur(28px) saturate(1.18);
+        background: #0c0c0c;
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
         box-shadow:
           inset 0 1px 0 rgba(255, 255, 255, 0.13),
           0 26px 80px rgba(0, 0, 0, 0.34);
@@ -1257,9 +1268,11 @@
       }
 
       .case-preview-frame {
+        display: block;
         width: 100%;
         height: 100%;
         border: 0;
+        color-scheme: dark;
         background: #0c0c0c;
       }
 
@@ -1522,6 +1535,13 @@
       @media (min-width: 980px) {
         .assistant-console.has-user.has-preview {
           width: min(1240px, calc(100vw - 48px));
+        }
+
+        .assistant-console.has-user.has-preview::after {
+          left: 0;
+          right: auto;
+          width: min(520px, calc(50% - 34px));
+          transform: none;
         }
 
         .assistant-console.has-user.has-preview .thread {
@@ -2356,6 +2376,15 @@
       }
 
       @keyframes mascot-hold-enter {
+        0% {
+          opacity: 0;
+          transform: translate3d(-50%, 2px, 0) scale(0.992);
+        }
+
+        45% {
+          opacity: 1;
+        }
+
         to {
           opacity: 1;
           transform: translate3d(-50%, 0, 0) scale(1);
@@ -2488,8 +2517,9 @@
         }
 
         .mascot-hold {
+          --mascot-start-width: min(220px, 56vw);
+          --mascot-chat-width: min(190px, 48vw);
           top: clamp(214px, calc(30vh - 24px), 254px);
-          width: min(190px, 48vw);
         }
 
         .loader.is-chatting .mascot-hold {
@@ -2505,7 +2535,7 @@
           bottom: 0;
           width: auto;
           transform: none;
-          animation: mobile-console-enter 760ms var(--ease-out) 5.05s forwards;
+          animation: mobile-console-enter 640ms var(--ease-out) var(--intro-console-delay) forwards;
         }
 
         .assistant-console.has-user {
@@ -2605,58 +2635,48 @@
         }
 
         .case-card {
-          flex-basis: min(70vw, 220px);
-          grid-template-rows: 92px minmax(118px, auto);
-          min-height: 222px;
+          flex-basis: min(68vw, 206px);
+          grid-template-rows: 80px minmax(86px, auto);
+          min-height: 170px;
         }
 
         .case-preview-art {
-          min-height: 84px;
-          margin: 7px 7px 0;
-          border-radius: 17px;
+          min-height: 68px;
+          margin: 6px 6px 0;
+          border-radius: 14px;
         }
 
         .case-art-grid {
-          inset: 15px 16px auto;
-          gap: 5px;
+          inset: 14px 14px auto;
+          gap: 4px;
         }
 
         .case-art-cell {
-          height: 16px;
+          height: 14px;
         }
 
         .case-art-bars {
-          left: 16px;
-          right: 16px;
-          bottom: 14px;
-          height: 34px;
-        }
-
-        .case-art-path {
-          left: 16px;
-          right: 16px;
-          top: 25px;
+          left: 14px;
+          right: 14px;
+          bottom: 12px;
           height: 30px;
         }
 
-        .case-card-body {
-          padding: 10px 12px 44px;
+        .case-art-path {
+          left: 14px;
+          right: 14px;
+          top: 23px;
+          height: 28px;
         }
 
-        .case-card-source {
-          font-size: 11px;
-          padding: 5px 8px;
+        .case-card-body {
+          padding: 9px 11px 36px;
         }
 
         .case-card-title {
-          min-height: 3.9em;
+          min-height: 3.84em;
           font-size: 14px;
-          line-height: 1.3;
-        }
-
-        .case-card-meta {
-          margin-top: 12px;
-          font-size: 10px;
+          line-height: 1.28;
         }
 
         .user-message {
@@ -2814,8 +2834,8 @@
         <button
           class="mascot-hold chat-mascot"
           type="button"
-          data-state="sleep"
-          aria-label="Wake Tim's portfolio assistant"
+          data-state="awake"
+          aria-label="Interact with Tim's portfolio assistant"
         >
           <canvas
             class="mascot-canvas"
@@ -2825,8 +2845,8 @@
           <video
             class="mascot-video is-active"
             id="mascot-video"
-            data-clip="sleep"
-            src="assets/mascot-sleep-loop.mp4?v=video-clips-4"
+            data-clip="awake"
+            src="assets/mascot-awake-loop.mp4?v=video-clips-4"
             autoplay
             muted
             loop
@@ -2991,6 +3011,7 @@
       const assistantMessage = document.querySelector("#assistant-message");
       const assistantConsole = document.querySelector(".assistant-console");
       const loader = document.querySelector(".loader");
+      const loaderVideo = document.querySelector(".loader-video");
       const thread = document.querySelector(".thread");
       const casePreviewShell = document.querySelector("#case-preview-shell");
       const casePreviewRail = document.querySelector("#case-preview-rail");
@@ -3012,6 +3033,7 @@
       const mascotCanvasContext = mascotCanvas?.getContext("2d", { alpha: true });
       const mascotVideos = Array.from(document.querySelectorAll(".mascot-video"));
       const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const loaderIntroPlaybackRate = 1.55;
       const mascotClips = {
         sleep: {
           src: "assets/mascot-sleep-loop.mp4?v=video-clips-4",
@@ -3046,13 +3068,14 @@
           loop: false,
         },
       };
-      let mascotMode = "sleep";
-      let mascotReturnMode = "sleep";
+      let mascotMode = "awake";
+      let mascotReturnMode = "awake";
       let mascotActionActive = false;
       let mascotIdleTimer;
       let chatTransitionTimer;
       let responseStreamTimer;
       let responseStreamToken = 0;
+      let assistantRequestToken = 0;
       let mascotSwapToken = 0;
       let mascotCanvasWidth = 0;
       let mascotCanvasHeight = 0;
@@ -3243,15 +3266,13 @@
           data-case-id="${caseStudy.id}"
           data-variant="${caseStudy.variant}"
           style="--card-index: ${index}"
-          aria-label="${caseStudy.source}: ${caseStudy.title}"
+          aria-label="${caseStudy.title}"
         >
           <span class="case-preview-art" data-variant="${caseStudy.variant}" aria-hidden="true">
             ${renderCaseArt(caseStudy)}
           </span>
           <span class="case-card-body">
-            <span class="case-card-source">${caseStudy.source}</span>
             <span class="case-card-title">${caseStudy.title}</span>
-            <span class="case-card-meta">${caseStudy.meta}</span>
           </span>
         </button>
       `;
@@ -3281,6 +3302,77 @@
         assistantMessage.classList.remove("is-streaming");
       };
 
+      const appendTextWithLineBreaks = (target, text) => {
+        String(text || "")
+          .split("\n")
+          .forEach((line, index) => {
+            if (index > 0) {
+              target.append(document.createElement("br"));
+            }
+
+            target.append(document.createTextNode(line));
+          });
+      };
+
+      const createSourcePill = (source) => {
+        const pill = document.createElement("span");
+        const label = document.createElement("span");
+
+        pill.className = "source-pill";
+        pill.tabIndex = 0;
+        pill.setAttribute("role", "note");
+        pill.setAttribute(
+          "aria-label",
+          `${source.caseTitle || "Portfolio source"}: ${source.blockTitle || "source block"}`,
+        );
+        pill.title = [
+          source.caseTitle,
+          source.blockTitle,
+          source.excerpt,
+          source.file,
+        ]
+          .filter(Boolean)
+          .join("\n");
+
+        label.className = "source-pill-label";
+        label.textContent = "source";
+        pill.append(label);
+
+        return pill;
+      };
+
+      const renderAssistantContent = (response, sources = []) => {
+        const sourceMap = new Map(sources.map((source) => [source.id, source]));
+        const citationPattern = /\[(S\d+)\]/g;
+        let lastIndex = 0;
+        let hasCitation = false;
+        let match;
+
+        assistantMessage.textContent = "";
+
+        while ((match = citationPattern.exec(response)) !== null) {
+          appendTextWithLineBreaks(assistantMessage, response.slice(lastIndex, match.index));
+
+          const source = sourceMap.get(match[1]);
+
+          if (source) {
+            assistantMessage.append(createSourcePill(source));
+            hasCitation = true;
+          } else {
+            appendTextWithLineBreaks(assistantMessage, match[0]);
+          }
+
+          lastIndex = match.index + match[0].length;
+        }
+
+        appendTextWithLineBreaks(assistantMessage, response.slice(lastIndex));
+
+        if (!hasCitation && sources.length > 0) {
+          assistantMessage.append(document.createTextNode(" "));
+          assistantMessage.append(createSourcePill(sources[0]));
+        }
+      };
+
       const completeExchangeEnrichment = (options = {}) => {
         if (options.enrichment === "cases") {
           renderCaseCards(options.activeCaseId);
@@ -3303,6 +3395,7 @@
 
         assistantMessage.textContent = "";
         assistantMessage.classList.add("is-streaming");
+        assistantMessage.classList.toggle("is-error", Boolean(options.isError));
 
         const step = () => {
           if (token !== responseStreamToken) {
@@ -3315,6 +3408,7 @@
 
           if (index >= chunks.length) {
             assistantMessage.classList.remove("is-streaming");
+            renderAssistantContent(response, options.sources || []);
             completeExchangeEnrichment(options);
             return;
           }
@@ -3344,14 +3438,23 @@
             <style>
               :root { color-scheme: dark; }
               * { box-sizing: border-box; }
+              html {
+                min-height: 100%;
+                background: #0c0c0c;
+              }
               body {
                 margin: 0;
+                width: 100%;
                 min-height: 100vh;
                 background: #0c0c0c;
                 color: rgba(242, 242, 238, 0.92);
                 font: 500 15px/1.5 Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
               }
-              main { padding: 24px; }
+              main {
+                min-height: 100vh;
+                padding: 24px;
+                background: #0c0c0c;
+              }
               .eyebrow {
                 color: rgba(242, 242, 238, 0.52);
                 font: 700 11px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -3437,6 +3540,93 @@
           response: `I'll route this as a portfolio brief: ${prompt}`,
           enrichment: "",
         };
+      };
+
+      const requestPortfolioExchange = async (prompt) => {
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ prompt }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Portfolio assistant failed with ${response.status}`);
+        }
+
+        const payload = await response.json();
+        const sources = Array.isArray(payload.sources) ? payload.sources : [];
+
+        return {
+          response: payload.answer || "I could not find a portfolio-backed answer yet.",
+          enrichment: payload.blocked ? "" : sources.length > 0 ? "cases" : "",
+          sources,
+          isError: Boolean(payload.error),
+        };
+      };
+
+      const submitPortfolioPrompt = async (prompt, sourceElement, fallbackResponse = "") => {
+        const trimmedPrompt = prompt.trim();
+
+        if (!trimmedPrompt) {
+          promptInput.focus({ preventScroll: true });
+          return;
+        }
+
+        const requestToken = (assistantRequestToken += 1);
+        const loadingResponse = "Checking Tim's portfolio notes…";
+
+        playMascotAction("send", "input");
+        promptButtons.forEach((item) => {
+          item.classList.toggle("is-active", item === sourceElement);
+        });
+        showExchange(trimmedPrompt, loadingResponse, {
+          sourceElement,
+          streamDelay: 70,
+        });
+
+        try {
+          const exchange = await requestPortfolioExchange(trimmedPrompt);
+
+          if (requestToken !== assistantRequestToken) {
+            return;
+          }
+
+          streamAssistantResponse(exchange.response, {
+            enrichment: exchange.enrichment,
+            sources: exchange.sources,
+            sourceElement,
+            isError: exchange.isError,
+          });
+        } catch {
+          if (requestToken !== assistantRequestToken) {
+            return;
+          }
+
+          const fallback = fallbackResponse || getExchangeForPrompt(trimmedPrompt).response;
+          streamAssistantResponse(
+            `The portfolio assistant server is not connected yet. ${fallback}`,
+            {
+              enrichment: "",
+              sourceElement,
+              isError: true,
+            },
+          );
+        }
+      };
+
+      const setLoaderIntroPlaybackRate = () => {
+        if (!loaderVideo) {
+          return;
+        }
+
+        try {
+          loaderVideo.defaultPlaybackRate = loaderIntroPlaybackRate;
+          loaderVideo.playbackRate = loaderIntroPlaybackRate;
+        } catch {
+          // Some browsers briefly reject playback-rate updates before metadata is ready.
+        }
       };
 
       const playMascotVideo = (video, restart) => {
@@ -3689,6 +3879,7 @@
         userMessageRow.hidden = false;
         hideCaseCards();
         assistantMessage.textContent = "";
+        assistantMessage.classList.remove("is-error");
 
         promptInput.value = "";
         window.requestAnimationFrame(() => {
@@ -3728,13 +3919,9 @@
           promptButtons.forEach((item) => item.classList.remove("is-active"));
           button.classList.add("is-active");
           promptInput.value = button.dataset.prompt;
-          showExchange(button.dataset.prompt, button.dataset.response, {
-            enrichment: button.dataset.enrichment,
-            sourceElement: button,
-          });
+          submitPortfolioPrompt(button.dataset.prompt, button, button.dataset.response);
           button.classList.add("is-used");
           window.requestAnimationFrame(updateFollowupFade);
-          playMascotAction("send", "input");
         });
       });
 
@@ -3742,18 +3929,7 @@
         event.preventDefault();
         const prompt = promptInput.value.trim();
 
-        if (!prompt) {
-          promptInput.focus({ preventScroll: true });
-          return;
-        }
-
-        playMascotAction("send", "input");
-        promptButtons.forEach((item) => item.classList.remove("is-active"));
-        const exchange = getExchangeForPrompt(prompt);
-        showExchange(prompt, exchange.response, {
-          enrichment: exchange.enrichment,
-          sourceElement: composer,
-        });
+        submitPortfolioPrompt(prompt, composer);
       });
 
       mascot.addEventListener("click", () => {
@@ -3804,11 +3980,14 @@
         updateCaseRailFade();
         updateThreadFade();
       });
+      loaderVideo?.addEventListener("loadedmetadata", setLoaderIntroPlaybackRate);
+      loaderVideo?.addEventListener("play", setLoaderIntroPlaybackRate);
+      setLoaderIntroPlaybackRate();
       updateFollowupFade();
       updateCaseRailFade();
       updateThreadFade();
       drawMascotCanvas();
-      setMascotClip("sleep", { restart: false });
+      setMascotClip("awake", { restart: false });
     </script>
   </body>
 </html>

@@ -1,5 +1,5 @@
 # Project Instructions
 
-Always follow `@DESIGN.md` for visual decisions. The portfolio uses the `Dark Signal Portfolio` system: near-black background, monochrome pixel/halftone/scan visuals, tight radii, flat cards, mono metadata, and a restrained signal-green/cyan accent.
+Always follow `@DESIGN.md` for visual decisions. The portfolio now uses the `Ambient Chat Portfolio` system: true-black stage, soft glass composer, follow-up suggestion chips, compact user request bubbles, mostly unframed assistant responses, warm off-white text, and restrained signal-green accents.
 
-Do not introduce generic SaaS styling, gradient orbs, glassmorphism, beige/purple palettes, oversized rounded cards, or marketing-style hero cards unless `DESIGN.md` is intentionally updated in the same change.
+Do not reintroduce the old pixel-first styling, generic SaaS heroes, gradient orbs, beige/purple palettes, oversized section cards, or marketing-style hero cards unless `DESIGN.md` is intentionally updated in the same change.

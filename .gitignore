@@ -2,6 +2,9 @@ node_modules/
 .next/
 dist/
 out/
+.env
+.env.*
+!.env.example
 .DS_Store
 .playwright-cli/
 remotion-eye-mascot/node_modules/
