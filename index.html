@@ -1175,9 +1175,9 @@
         border: 1px solid rgba(255, 255, 255, 0.14);
         border-radius: 26px;
         overflow: hidden;
-        background: rgba(14, 14, 14, 0.86);
-        -webkit-backdrop-filter: blur(28px) saturate(1.18);
-        backdrop-filter: blur(28px) saturate(1.18);
+        background: #0c0c0c;
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
         box-shadow:
           inset 0 1px 0 rgba(255, 255, 255, 0.13),
           0 26px 80px rgba(0, 0, 0, 0.34);
@@ -1257,9 +1257,11 @@
       }
 
       .case-preview-frame {
+        display: block;
         width: 100%;
         height: 100%;
         border: 0;
+        color-scheme: dark;
         background: #0c0c0c;
       }
 
@@ -3344,14 +3346,23 @@
             <style>
               :root { color-scheme: dark; }
               * { box-sizing: border-box; }
+              html {
+                min-height: 100%;
+                background: #0c0c0c;
+              }
               body {
                 margin: 0;
+                width: 100%;
                 min-height: 100vh;
                 background: #0c0c0c;
                 color: rgba(242, 242, 238, 0.92);
                 font: 500 15px/1.5 Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
               }
-              main { padding: 24px; }
+              main {
+                min-height: 100vh;
+                padding: 24px;
+                background: #0c0c0c;
+              }
               .eyebrow {
                 color: rgba(242, 242, 238, 0.52);
                 font: 700 11px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace;
