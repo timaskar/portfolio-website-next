@@ -31,6 +31,12 @@
         --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
         --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
         --ease-mascot: cubic-bezier(0.45, 0, 0.2, 1);
+        --intro-mascot-delay: 2.32s;
+        --intro-console-delay: 2.78s;
+        --intro-video-fade-delay: 2.62s;
+        --intro-video-fade-duration: 300ms;
+        --mascot-start-width: min(274px, 31vw);
+        --mascot-chat-width: min(238px, 27vw);
         font-family: Inter, Manrope, ui-sans-serif, system-ui, -apple-system,
           BlinkMacSystemFont, "Segoe UI", sans-serif;
         color: var(--text-primary);
@@ -107,7 +113,7 @@
         pointer-events: none;
         transform: translateZ(0);
         will-change: opacity;
-        animation: loader-video-exit 420ms linear 5.18s forwards;
+        animation: loader-video-exit var(--intro-video-fade-duration) linear var(--intro-video-fade-delay) forwards;
       }
 
       .mascot-hold {
@@ -117,19 +123,19 @@
         z-index: 3;
         display: grid;
         place-items: center;
-        width: min(238px, 27vw);
+        width: var(--mascot-start-width);
         aspect-ratio: 512 / 320;
         border: 0;
         padding: 0;
         background: transparent;
         opacity: 0;
-        transform: translate3d(-50%, 10px, 0) scale(0.94);
+        transform: translate3d(-50%, 2px, 0) scale(0.992);
         cursor: pointer;
-        animation: mascot-hold-enter 520ms var(--ease-out) 4.9s forwards;
+        animation: mascot-hold-enter 720ms cubic-bezier(0.22, 1, 0.36, 1) var(--intro-mascot-delay) forwards;
         transition:
-          left 520ms var(--ease-out),
-          top 520ms var(--ease-out),
-          width 420ms var(--ease-out);
+          left 680ms cubic-bezier(0.22, 1, 0.36, 1),
+          top 680ms cubic-bezier(0.22, 1, 0.36, 1),
+          width 520ms cubic-bezier(0.22, 1, 0.36, 1);
       }
 
       .mascot-hold:focus-visible {
@@ -138,6 +144,7 @@
 
       .loader.is-chatting .mascot-hold {
         top: clamp(28px, calc(9vh - 24px), 88px);
+        width: var(--mascot-chat-width);
       }
 
       @media (min-width: 980px) {
@@ -502,7 +509,7 @@
         width: min(560px, calc(100vw - 48px));
         opacity: 0;
         transform: translate3d(-50%, var(--console-y-start), 0);
-        animation: console-enter 760ms var(--ease-out) 5.14s forwards;
+        animation: console-enter 640ms var(--ease-out) var(--intro-console-delay) forwards;
         transition:
           top 620ms var(--ease-out),
           transform 620ms var(--ease-out),
@@ -2365,6 +2372,15 @@
       }
 
       @keyframes mascot-hold-enter {
+        0% {
+          opacity: 0;
+          transform: translate3d(-50%, 2px, 0) scale(0.992);
+        }
+
+        45% {
+          opacity: 1;
+        }
+
         to {
           opacity: 1;
           transform: translate3d(-50%, 0, 0) scale(1);
@@ -2497,8 +2513,9 @@
         }
 
         .mascot-hold {
+          --mascot-start-width: min(220px, 56vw);
+          --mascot-chat-width: min(190px, 48vw);
           top: clamp(214px, calc(30vh - 24px), 254px);
-          width: min(190px, 48vw);
         }
 
         .loader.is-chatting .mascot-hold {
@@ -2514,7 +2531,7 @@
           bottom: 0;
           width: auto;
           transform: none;
-          animation: mobile-console-enter 760ms var(--ease-out) 5.05s forwards;
+          animation: mobile-console-enter 640ms var(--ease-out) var(--intro-console-delay) forwards;
         }
 
         .assistant-console.has-user {
@@ -2823,8 +2840,8 @@
         <button
           class="mascot-hold chat-mascot"
           type="button"
-          data-state="sleep"
-          aria-label="Wake Tim's portfolio assistant"
+          data-state="awake"
+          aria-label="Interact with Tim's portfolio assistant"
         >
           <canvas
             class="mascot-canvas"
@@ -2834,8 +2851,8 @@
           <video
             class="mascot-video is-active"
             id="mascot-video"
-            data-clip="sleep"
-            src="assets/mascot-sleep-loop.mp4?v=video-clips-4"
+            data-clip="awake"
+            src="assets/mascot-awake-loop.mp4?v=video-clips-4"
             autoplay
             muted
             loop
@@ -3000,6 +3017,7 @@
       const assistantMessage = document.querySelector("#assistant-message");
       const assistantConsole = document.querySelector(".assistant-console");
       const loader = document.querySelector(".loader");
+      const loaderVideo = document.querySelector(".loader-video");
       const thread = document.querySelector(".thread");
       const casePreviewShell = document.querySelector("#case-preview-shell");
       const casePreviewRail = document.querySelector("#case-preview-rail");
@@ -3021,6 +3039,7 @@
       const mascotCanvasContext = mascotCanvas?.getContext("2d", { alpha: true });
       const mascotVideos = Array.from(document.querySelectorAll(".mascot-video"));
       const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const loaderIntroPlaybackRate = 1.55;
       const mascotClips = {
         sleep: {
           src: "assets/mascot-sleep-loop.mp4?v=video-clips-4",
@@ -3055,8 +3074,8 @@
           loop: false,
         },
       };
-      let mascotMode = "sleep";
-      let mascotReturnMode = "sleep";
+      let mascotMode = "awake";
+      let mascotReturnMode = "awake";
       let mascotActionActive = false;
       let mascotIdleTimer;
       let chatTransitionTimer;
@@ -3457,6 +3476,19 @@
         };
       };
 
+      const setLoaderIntroPlaybackRate = () => {
+        if (!loaderVideo) {
+          return;
+        }
+
+        try {
+          loaderVideo.defaultPlaybackRate = loaderIntroPlaybackRate;
+          loaderVideo.playbackRate = loaderIntroPlaybackRate;
+        } catch {
+          // Some browsers briefly reject playback-rate updates before metadata is ready.
+        }
+      };
+
       const playMascotVideo = (video, restart) => {
         if (restart !== false) {
           try {
@@ -3822,11 +3854,14 @@
         updateCaseRailFade();
         updateThreadFade();
       });
+      loaderVideo?.addEventListener("loadedmetadata", setLoaderIntroPlaybackRate);
+      loaderVideo?.addEventListener("play", setLoaderIntroPlaybackRate);
+      setLoaderIntroPlaybackRate();
       updateFollowupFade();
       updateCaseRailFade();
       updateThreadFade();
       drawMascotCanvas();
-      setMascotClip("sleep", { restart: false });
+      setMascotClip("awake", { restart: false });
     </script>
   </body>
 </html>
